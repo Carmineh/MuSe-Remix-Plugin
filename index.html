@@ -3,10 +3,22 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Test Plugin Manny</title>
+		<title>MuSe Plugin</title>
+		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
-		<h1>Test Plugin Manny</h1>
+		<!-- Plugin Header -->
+		<header class="plugin-header">
+			<h1>MuSe</h1>
+		</header>
+
+		<div class="plugin-ui">
+			<!-- Console output area -->
+			<div class="console-container">
+				<label for="console">Console Output</label>
+				<textarea id="console" rows="8" readonly placeholder="Loading..."></textarea>
+			</div>
+		</div>
 
 		<script type="module" src="/src/main.js"></script>
 	</body>

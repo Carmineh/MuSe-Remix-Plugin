@@ -1,0 +1,130 @@
+/* Base reset & typography */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+               "Inter", Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #333;
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header styling */
+.plugin-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.plugin-header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
+}
+
+/* Container for the UI */
+.plugin-ui {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* Console container */
+.console-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.console-container label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 8px;
+}
+
+/* Console styling */
+#console {
+  width: 100%;
+  min-height: 200px;
+  resize: vertical;
+  background: #1a202c;
+  color: #e2e8f0;
+  border: 2px solid #2d3748;
+  border-radius: 12px;
+  padding: 20px;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", 
+               "Source Code Pro", monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+#console:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#console::placeholder {
+  color: #718096;
+}
+
+/* Scrollbar styling for webkit browsers */
+#console::-webkit-scrollbar {
+  width: 8px;
+}
+
+#console::-webkit-scrollbar-track {
+  background: #2d3748;
+  border-radius: 4px;
+}
+
+#console::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+#console::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+  
+  .plugin-header h1 {
+    font-size: 2.5rem;
+  }
+  
+  .plugin-ui {
+    padding: 24px;
+  }
+  
+  #console {
+    min-height: 150px;
+    padding: 16px;
+    font-size: 0.9rem;
+  }
+}
