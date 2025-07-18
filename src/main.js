@@ -1,7 +1,78 @@
 import { createClient } from "@remixproject/plugin-iframe";
 
-const client = createClient();
+const console = document.getElementById("console");
 
+// MuSe Plugin Initialization
+const client = createClient();
+client.onload(async () => {
+	const path = "MuSe/";
+	try {
+		// Inizializzazione Plugin
+		clearConsole(console);
+		updateConsole("MuSe Plugin loaded successfully.");
+		await loadContracts();
+		// TODO: Caricamento Mutators
+
+		// Inizializzazione del Workspace
+		await client.fileManager.mkdir(path + "results");
+		await client.fileManager.mkdir(path + "results/mutants");
+		updateConsole("MuSe directory successfully created.");
+
+		updateConsole("Plugin ready for use.");
+	} catch (error) {
+		updateConsole(`Initialization error: ${error.message}`);
+	}
+});
+
+// Caricamento file contenuti nella cartella dei contratti e aggiunta al dropdown menu
+async function loadContracts() {
+	try {
+		updateConsole("Loading contracts...");
+		const contractSelect = document.getElementById("contract-select");
+
+		contractSelect.innerHTML = '<option value="">Loading contracts...</option>';
+		const contracts = await getContractsFromRemix();
+		contractSelect.innerHTML = "";
+
+		if (contracts.length === 0) {
+			contractSelect.innerHTML = '<option value="" disabled>No contracts loaded</option>';
+		} else {
+			contractSelect.innerHTML = '<option value="">Choose a contract...</option>';
+			contracts.forEach((contract) => {
+				const option = document.createElement("option");
+				option.value = "contracts/" + contract;
+				option.text = contract;
+				contractSelect.appendChild(option);
+			});
+			updateConsole(`Loaded ${contracts.length} contracts.`);
+		}
+	} catch (error) {
+		updateConsole(`Error loading contracts: ${error.message}`);
+		const contractSelect = document.getElementById("contract-select");
+		contractSelect.innerHTML = '<option value="" disabled>Error loading contracts</option>';
+	}
+}
+
+// Prendo tutti i contratti presenti nella cartella "Contracts" -> L'unica cartella valida per caricare i contratti
+async function getContractsFromRemix() {
+	const folder = "contracts";
+	const contracts = [];
+
+	const data = await client.fileManager.readdir(folder);
+
+	for (const [name, metadata] of Object.entries(data)) {
+		if (!metadata.isDirectory) {
+			if (name.includes(".sol")) {
+				// Prendo solo i contratti solidity validi e tolgo la parte del path della cartella
+				contracts.push(name.replace("contracts/", ""));
+			}
+		}
+	}
+
+	return contracts;
+}
+
+// Aggiornamento del contenuto della console
 function updateConsole(message) {
 	const console = document.getElementById("console");
 	const timestamp = new Date().toLocaleTimeString();
@@ -12,44 +83,9 @@ function updateConsole(message) {
 	} else {
 		console.value = formattedMessage;
 	}
-	console.scrollTop = console.scrollHeight;
 }
 
-client.onload(async () => {
-	try {
-		// Clear loading placeholder
-		document.getElementById("console").placeholder = "";
-
-		// Display initial message
-		updateConsole("MuSe Plugin loaded successfully.");
-
-		// Example string manipulation
-		let pluginString = "Hello from MuSe Plugin!";
-		updateConsole(`Initial string: "${pluginString}"`);
-
-		// Change the string
-		pluginString = pluginString.replace("Hello", "Welcome");
-		updateConsole(`Modified string: "${pluginString}"`);
-
-		// Display plugin info
-		updateConsole("Plugin ready for use.");
-		updateConsole("This is a modern, minimalist plugin interface.");
-
-		// Optional: You can still interact with Remix IDE if needed
-		updateConsole("Checking Remix IDE connection...");
-		const folder = await client.fileManager.getFolder("/contracts");
-		updateConsole(`Found ${Object.keys(folder).length} items in contracts folder.`);
-	} catch (error) {
-		updateConsole(`Error: ${error.message}`);
-	}
-});
-
-// Add some interactivity - clear console on double-click
-document.addEventListener("DOMContentLoaded", () => {
-	const consoleElement = document.getElementById("console");
-
-	consoleElement.addEventListener("dblclick", () => {
-		consoleElement.value = "";
-		updateConsole("Console cleared.");
-	});
-});
+// Pulizia della console
+function clearConsole() {
+	console.value = "";
+}
