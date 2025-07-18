@@ -1,0 +1,24 @@
+{
+  "name": "remix-plugin-vite",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "vite": "^7.0.5"
+  },
+  "dependencies": {
+    "@remixproject/plugin": "^0.3.38",
+    "@remixproject/plugin-api": "^0.3.38",
+    "@remixproject/plugin-iframe": "^0.3.38",
+    "@remixproject/plugin-utils": "^0.3.38"
+  }
+}
