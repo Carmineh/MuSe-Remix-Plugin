@@ -33,8 +33,7 @@ body {
 .app-icon {
   width: 191px;
   height: 90px;
-
-  filter: drop-shadow(0 4px 8px rgba(139, 69, 19, 0.2));
+  filter: drop-shadow(0px 0px 1px black);
 }
 
 .plugin-header h1 {
