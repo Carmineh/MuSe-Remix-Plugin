@@ -4,37 +4,9 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>MuSe Remix Plugin</title>
-		<link rel="stylesheet" href="style.css" />
 	</head>
-	<body></body>
-		<header class="plugin-header">
-			<div class="header-content">
-				<div><img class="app-icon" src="logo.png" /></div>
-			</div>
-		</header>
-
-		<div class="plugin-ui">
-			<div class="section ">
-				<label for="contract-select" class="section-label">Select Contract</label>
-				<select id="contract-select" class="dropdown">
-					<option value="">Choose a contract...</option>
-				</select>
-			</div>
-
-			<div class="section">
-				<button id="execute-btn" class="execute-button">
-					Execute Mutations
-				</button>
-			</div>
-
-			<div class="section">
-				<label for="console" class="section-label">Console Output</label>
-				<div class="console-wrapper">
-					<textarea id="console" rows="6" readonly placeholder="Ready to execute operations..."></textarea>
-				</div>
-			</div>
-		</div>
-
-		<script type="module" src="/src/main.js"></script>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/main.jsx"></script>
 	</body>
 </html>
