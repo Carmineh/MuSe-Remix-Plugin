@@ -72,6 +72,10 @@ async function getContractsFromRemix() {
 	return contracts;
 }
 
+// TODO: Funzione mutate che esegue MuSe
+// TODO: Funzione che una volta premuto il tasto manda i contatti al server -> ../MuSe/contracts/
+// TODO: Funzione che prende i mutants scelti e il manda al server
+
 // Aggiornamento del contenuto della console
 function updateConsole(message) {
 	const console = document.getElementById("console");

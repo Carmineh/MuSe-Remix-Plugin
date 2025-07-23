@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
+    "dev:ngrok": "ngrok http 5173",
+    "dev:auto": "npm-run-all --parallel dev dev:ngrok",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -13,9 +15,12 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "npm-run-all": "^4.1.5",
     "vite": "^7.0.5"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.4",
     "@remixproject/plugin": "^0.3.38",
     "@remixproject/plugin-api": "^0.3.38",
     "@remixproject/plugin-iframe": "^0.3.38",
@@ -23,6 +28,7 @@
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "path": "^0.12.7",
-    "vite-plugin-ngrok": "^1.1.2"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }

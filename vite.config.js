@@ -1,6 +1,4 @@
-import { loadEnv, defineConfig } from "vite";
-import { ngrok } from "vite-plugin-ngrok";
-const { NGROK_AUTH_TOKEN } = loadEnv("", process.cwd(), "NGROK");
+import { defineConfig } from "vite";
 
 export default defineConfig({
 	build: {
@@ -10,22 +8,16 @@ export default defineConfig({
 		},
 	},
 	server: {
-		port: 3000,
-		host: true, // Alternative to '0.0.0.0'
+		port: 5173,
+		host: "0.0.0.0", // Allow external connections
 		strictPort: false,
+		allowedHosts: ["localhost", ".ngrok.io", ".ngrok-free.app", ".ngrok.app"],
 		hmr: {
-			clientPort: 443, // For ngrok HTTPS
+			clientPort: 443, // For ngrok HTTPS tunnels
 		},
-		allowedHosts: true,
 	},
-
-	// Disable host check completely
+	// Define global for compatibility
 	define: {
 		global: "globalThis",
 	},
-	plugins: [
-		ngrok({
-			authtoken: NGROK_AUTH_TOKEN,
-		}),
-	],
 });
