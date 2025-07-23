@@ -292,7 +292,7 @@ select.dropdown option {
   position: relative;
 }
 
-#console {
+.console {
   width: 100%;
   min-height: 120px;
   resize: vertical;
@@ -309,34 +309,34 @@ select.dropdown option {
   outline: none;
 }
 
-#console:focus {
+.console:focus {
   border-color: #8bc34a;
   box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.2);
 }
 
-#console::placeholder {
+.console::placeholder {
   color: #81c784;
 }
 
 /* Scrollbar styling for webkit browsers */
-#console::-webkit-scrollbar,
+.console::-webkit-scrollbar,
 .dropdown-list::-webkit-scrollbar {
   width: 8px;
 }
 
-#console::-webkit-scrollbar-track,
+.console::-webkit-scrollbar-track,
 .dropdown-list::-webkit-scrollbar-track {
   background: #3d4f3d;
   border-radius: 4px;
 }
 
-#console::-webkit-scrollbar-thumb,
+.console::-webkit-scrollbar-thumb,
 .dropdown-list::-webkit-scrollbar-thumb {
   background: #6b8e6b;
   border-radius: 4px;
 }
 
-#console::-webkit-scrollbar-thumb:hover,
+.console::-webkit-scrollbar-thumb:hover,
 .dropdown-list::-webkit-scrollbar-thumb:hover {
   background: #8bc34a;
 }
