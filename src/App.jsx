@@ -1,5 +1,5 @@
 import Header from './components/Header';
-import ContractDropdown from './components/ContractDropdown';
+import ContractCombobox from './components/ContractCombobox';
 import ExecuteButton from './components/ExecuteButton';
 import ConsoleOutput from './components/ConsoleOutput';
 import { useRemixClient } from './hooks/useRemixClient';
@@ -19,7 +19,7 @@ function App() {
     <>
       <Header />
       <div className="plugin-ui">
-        <ContractDropdown
+        <ContractCombobox
           contracts={contracts}
           selectedContract={selectedContract}
           onContractChange={setSelectedContract}
