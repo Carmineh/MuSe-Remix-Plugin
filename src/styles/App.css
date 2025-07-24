@@ -46,8 +46,7 @@ body {
 
 /* Container for the UI */
 .plugin-ui {
-  width: 100%;
-  max-width: 700px;
+  width: 700px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 195, 74, 0.3);
@@ -255,7 +254,7 @@ select.dropdown option {
 
 /* Execute button styling */
 .execute-button {
-  width: 100%;
+  width: 50%;
   padding: 16px 24px;
   background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%);
   color: white;
@@ -266,6 +265,7 @@ select.dropdown option {
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
+  margin: auto;
   align-items: center;
   justify-content: center;
   gap: 8px;
