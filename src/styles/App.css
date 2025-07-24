@@ -72,6 +72,10 @@ body {
   font-size: 1rem;
   color: #2d5a2d;
   margin-bottom: 12px;
+  justify-content: center;
+  text-align: center;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(45, 90, 45, 0.1);
 }
 
 /* ========================= */
