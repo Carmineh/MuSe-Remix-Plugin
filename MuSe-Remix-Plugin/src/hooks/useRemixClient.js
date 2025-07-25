@@ -20,7 +20,7 @@ export const useRemixClient = () => {
 		setConsoleMessages([]);
 	}, []);
 
-	// Get contracts from Remix filesystem
+	// Get contracts from Remix fileManager
 	const getContractsFromRemix = useCallback(async (clientInstance) => {
 		const folder = "contracts";
 		const contracts = [];
