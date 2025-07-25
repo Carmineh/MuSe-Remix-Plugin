@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@remixproject/plugin-iframe";
 
 export const useRemixClient = () => {
-	const API_URL = "URL DELLE API";
-
 	const [client, setClient] = useState(null);
 	const [contracts, setContracts] = useState([]);
 	const [selectedContract, setSelectedContract] = useState("");
 	const [consoleMessages, setConsoleMessages] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+
+	const API_URL = "http://localhost:3001";
 
 	const updateConsole = useCallback((message) => {
 		const timestamp = new Date().toLocaleTimeString();
@@ -70,7 +70,6 @@ export const useRemixClient = () => {
 				setClient(clientInstance);
 
 				clientInstance.onload(async () => {
-					const path = "MuSe/";
 					try {
 						// Plugin initialization
 						clearConsole();
@@ -85,11 +84,6 @@ export const useRemixClient = () => {
 						} else {
 							updateConsole(`Loaded ${contractsList.length} contracts.`);
 						}
-
-						// Initialize workspace
-						await clientInstance.fileManager.mkdir(path + "results");
-						await clientInstance.fileManager.mkdir(path + "results/mutants");
-						updateConsole("MuSe directory successfully created.");
 
 						updateConsole("Plugin ready for use.");
 						setIsLoading(false);
@@ -115,14 +109,61 @@ export const useRemixClient = () => {
 				return;
 			}
 
+			if (selectedMutators.length === 0) {
+				updateConsole("Please select at least one mutation operator.");
+				return;
+			}
 			updateConsole(`Starting mutation process for ${selectedContract}...`);
 
-			console.log(selectedMutators);
+			try {
+				// Leggo il contratto come stringa
+				const contract = await client.fileManager.readFile(selectedContract);
 
-			updateConsole("Mutation execution is not yet implemented.");
+				// Mando al server per salvare il file
+				const contractResponse = await fetch(`${API_URL}/api/save`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						filename: `${selectedContract.split("/").pop()}`,
+						content: contract,
+					}),
+				});
+
+				// Eseguo le mutazioni
+				const mutatorResponse = await fetch(`${API_URL}/api/mutate`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						mutators: selectedMutators,
+					}),
+				});
+				importDirectoryToRemix(client);
+
+				const data = await mutatorResponse.json();
+				updateConsole(`File saved successfully: ${data.message || "OK"}`);
+			} catch (error) {
+				updateConsole(`Error during mutation execution: ${error.message}`);
+			}
 		},
-		[selectedContract, updateConsole]
+		[selectedContract, updateConsole, client]
 	);
+
+	async function importDirectoryToRemix(remixPluginClient) {
+		try {
+			const response = await fetch(`${API_URL}/api/files-to-import`);
+			const files = await response.json();
+
+			for (const file of files) {
+				await remixPluginClient.fileManager.setFile(file.path, file.content);
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
 
 	return {
 		client,
