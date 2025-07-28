@@ -10,7 +10,6 @@ MuSe is based on a mutation testing Tool called [SuMo](https://github.com/Morena
 # Table of Contents
 * [Installation](https://github.com/GerardoIuliano/SuMo-SOlidity-MUtator#installation)
 * [Configuration](https://github.com/GerardoIuliano/SuMo-SOlidity-MUtator#configuration-)
-* [Mutation Operators](https://github.com/GerardoIuliano/SuMo-SOlidity-MUtator#mutation-operators-)
 
 
 
