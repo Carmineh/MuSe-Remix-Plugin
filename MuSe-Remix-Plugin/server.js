@@ -5,11 +5,17 @@ import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
 
-// Percorsi assoluti
+// Absolute path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const SUMO_REPO_PATH = path.resolve(__dirname, "../MuSe/");
 const PORT = 3001;
+
+// HTTPS Certificate
+const options = {
+	key: fs.readFileSync(path.join(__dirname, "certs/localhost-key.pem")),
+	cert: fs.readFileSync(path.join(__dirname, "certs/localhost.pem")),
+};
 
 // Funzione per eseguire "npx sumo ..."
 function runSumoCommand(command, parameters = []) {
@@ -69,7 +75,7 @@ function runSumoCommand(command, parameters = []) {
 }
 
 // Server HTTP
-const server = https.createServer((req, res) => {
+const server = https.createServer(options, (req, res) => {
 	const url = parse(req.url, true);
 	const method = req.method;
 
@@ -202,6 +208,6 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
 }
 
 // Avvio server
-server.listen(PORT, () => {
-	console.log(`Sumo server avviato su https://localhost:${PORT}`);
+server.listen(PORT, "0.0.0.0", () => {
+	console.log(`Server HTTPS su https://localhost:${PORT}`);
 });

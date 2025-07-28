@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "dev:ngrok": "ngrok http 5173",
-    "dev:auto": "npm-run-all --parallel dev dev:ngrok",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:both": "concurrently \"vite\" \"node ./server.js\""
   },
   "keywords": [],
   "author": "",
@@ -16,6 +15,7 @@
   "description": "",
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",
+    "concurrently": "^9.2.0",
     "npm-run-all": "^4.1.5",
     "vite": "^7.0.5"
   },
