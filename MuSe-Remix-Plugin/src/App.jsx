@@ -5,6 +5,7 @@ import { useRemixClient } from './hooks/useRemixClient';
 import './styles/App.css';
 import ContractDropdown from './components/ContractDropdown';
 import MutatorDropdown from './components/MutatorDropdown';
+import { SystemThemeWatcher } from './components/ThemeToggle'; // Aggiungi questa riga
 import { useState } from 'react';
 import { solidityOperators, genericOperators, securityOperators } from './utils/operators';
 
@@ -17,16 +18,14 @@ function App() {
     executeMutations,
     isLoading,
   } = useRemixClient();
-
+  
   // Generic mutation operators (minimal)
   const [selectedGeneric, setSelectedGeneric] = useState([]);
-
   // Solidity-specific mutation operators (standard)
   const [selectedSolidity, setSelectedSolidity] = useState([]);
-
-  // Security-oriented mutation operators (Muse) 
+  // Security-oriented mutation operators (Muse)
   const [selectedSecurity, setSelectedSecurity] = useState([]);
-
+  
   const selectedMutators = [
     ...selectedGeneric,
     ...selectedSolidity,
@@ -35,6 +34,16 @@ function App() {
 
   return (
     <>
+      {/* 
+        Sistema di tema automatico basato sulle impostazioni del sistema.
+        Cambia automaticamente quando modifichi Light/Dark mode nel tuo OS.
+        
+        Opzioni:
+        - showIndicator={true}  -> Mostra piccolo badge con tema corrente (consigliato)
+        - showIndicator={false} -> Solo cambio automatico, nessun indicatore
+      */}
+      <SystemThemeWatcher showIndicator={true} />
+      
       <Header />
       <div className="plugin-ui">
         <ContractDropdown
@@ -66,7 +75,6 @@ function App() {
             isLoading={isLoading}
           />
         </div>
-        
         <ExecuteButton
           onExecute={() => executeMutations(selectedMutators)}
           disabled={isLoading || !selectedContract}
