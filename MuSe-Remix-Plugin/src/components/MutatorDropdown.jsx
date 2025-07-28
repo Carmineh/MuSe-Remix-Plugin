@@ -1,6 +1,11 @@
 import React from 'react';
 import Select from 'react-select';
 
+// Custom rendering: label in menu, value in selection
+const formatOptionLabel = (option, { context }) => {
+  return context === 'menu' ? option.label : option.value;
+};
+
 const MutatorDropdown = ({ label, options, selectedOptions, onChange, isLoading }) => (
   <div className="section">
     <label className="section-label" style={{ marginBottom: 6 }}>{label}</label>
@@ -11,8 +16,9 @@ const MutatorDropdown = ({ label, options, selectedOptions, onChange, isLoading 
       onChange={onChange}
       isLoading={isLoading}
       classNamePrefix="dropdown"
-      placeholder={`Select ${label.toLowerCase()}...`}
+      placeholder="Select operators..."
       isSearchable
+      formatOptionLabel={formatOptionLabel}
     />
   </div>
 );

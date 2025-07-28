@@ -1,4 +1,6 @@
-/* Base reset & typography */
+/* =================================== */
+/* Base Reset & Typography             */
+/* =================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -6,8 +8,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
-               "Inter", Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
   background: linear-gradient(135deg, #f0f4f0 0%, #e8f5e8 100%);
   color: #2d5a2d;
   min-height: 100vh;
@@ -17,7 +18,9 @@ body {
   align-items: center;
 }
 
-/* Header styling */
+/* =================================== */
+/* Header                              */
+/* =================================== */
 .plugin-header {
   text-align: center;
   margin-bottom: 32px;
@@ -44,9 +47,11 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* Container for the UI */
+/* =================================== */
+/* Plugin UI Container                 */
+/* =================================== */
 .plugin-ui {
-  width: 700px;
+  width: 500px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 195, 74, 0.3);
@@ -57,7 +62,9 @@ body {
     0 4px 16px rgba(45, 90, 45, 0.05);
 }
 
-/* Section styling */
+/* =================================== */
+/* Section Layout                      */
+/* =================================== */
 .section {
   margin-bottom: 28px;
 }
@@ -78,11 +85,9 @@ body {
   text-shadow: 0 2px 4px rgba(45, 90, 45, 0.1);
 }
 
-/* ========================= */
-/* Unified Dropdown Styles   */
-/* ========================= */
-
-/* Native select (top dropdown) */
+/* =================================== */
+/* Native <select> Dropdown Styles     */
+/* =================================== */
 select.dropdown {
   width: 100%;
   padding: 12px 16px;
@@ -96,8 +101,9 @@ select.dropdown {
   cursor: pointer;
   appearance: none;
   min-height: 24px;
-  box-sizing: border-box;
   font-family: inherit;
+  margin: 0 auto;
+  display: block;
 }
 
 select.dropdown:hover,
@@ -116,16 +122,30 @@ select.dropdown option {
   color: #2d5a2d;
 }
 
-/* Multi-select custom dropdown (JS) */
+/* =================================== */
+/* react-select Dropdown Styles        */
+/* =================================== */
+.dropdown__control {
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+  .dropdown__control {
+    width: 100%;
+  }
+}
+
+/* react-select custom container (if used) */
 .dropdown-container {
   position: relative;
-  width: 100%;
+  width: 50%;
   font-family: inherit;
   margin-bottom: 8px;
 }
 
 .dropdown-input {
-  width: 100%;
+  width: 50%;
   border: 2px solid #c8e6c9;
   padding: 12px 16px;
   border-radius: 12px;
@@ -136,20 +156,21 @@ select.dropdown option {
   transition: border-color 0.3s, box-shadow 0.3s;
   outline: none;
   min-height: 24px;
-  box-sizing: border-box;
 }
+
 .dropdown-input.selected {
   font-weight: 600;
   background: #f9fff9;
   border-color: #8bc34a;
 }
+
 .dropdown-input:hover,
 .dropdown-input:focus {
   border-color: #8bc34a;
   box-shadow: 0 0 0 3px rgba(139, 195, 74, 0.15);
 }
 
-/* Dropdown menu popup */
+/* Dropdown popup */
 .dropdown-menu {
   position: absolute;
   top: 110%;
@@ -166,7 +187,7 @@ select.dropdown option {
   padding-bottom: 4px;
 }
 
-/* Search bar inside dropdown */
+/* Dropdown search bar */
 .dropdown-search {
   width: 95%;
   padding: 10px 12px;
@@ -179,21 +200,19 @@ select.dropdown option {
   font-size: 1rem;
   background: #f9fff9;
   color: #2d5a2d;
-  box-sizing: border-box;
 }
 
 .dropdown-search:focus {
   background: #f1f8e9;
 }
 
-/* List of items */
+/* Dropdown item list */
 .dropdown-list {
   max-height: 160px;
   overflow-y: auto;
   padding: 4px 0;
 }
 
-/* Each item in the list */
 .dropdown-item {
   display: flex;
   align-items: center;
@@ -206,6 +225,7 @@ select.dropdown option {
   transition: background 0.2s, font-weight 0.2s;
   user-select: none;
 }
+
 .dropdown-item.selected,
 .dropdown-item:hover {
   background: #f1f8e9;
@@ -217,7 +237,7 @@ select.dropdown option {
   accent-color: #8bc34a;
 }
 
-/* "No results" styling */
+/* No results item */
 .dropdown-item[style*="color: #888"] {
   font-style: italic;
   background: none;
@@ -225,40 +245,44 @@ select.dropdown option {
   font-weight: 400;
 }
 
-/* ========================= */
-/* Layout for 3 dropdowns in a row */
-/* ========================= */
+/* =================================== */
+/* Dropdown Row Layout (3 side by side)*/
+/* =================================== */
 @media (min-width: 768px) {
   .plugin-ui > .dropdown-row {
     display: flex;
     flex-direction: row;
     gap: 32px;
     align-items: flex-end;
-    width: 100%;
     justify-content: center;
+    width: 100%;
     margin-bottom: 32px;
   }
+
   .dropdown-row > div {
     flex: 1 1 0;
     min-width: 220px;
   }
 }
+
 @media (max-width: 767px) {
   .plugin-ui > .dropdown-row {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    align-items: stretch;
     width: 100%;
   }
+
   .dropdown-row > div {
     min-width: 0;
   }
 }
 
-/* Execute button styling */
+/* =================================== */
+/* Execute Button                      */
+/* =================================== */
 .execute-button {
-  width: 50%;
+  width: 75%;
   padding: 16px 24px;
   background: linear-gradient(135deg, #8bc34a 0%, #689f38 100%);
   color: white;
@@ -291,7 +315,9 @@ select.dropdown option {
   font-size: 1.2rem;
 }
 
-/* Console styling */
+/* =================================== */
+/* Console                             */
+/* =================================== */
 .console-wrapper {
   position: relative;
 }
@@ -305,12 +331,13 @@ select.dropdown option {
   border: 2px solid #4a5d4a;
   border-radius: 12px;
   padding: 16px;
-  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", 
-               "Source Code Pro", monospace;
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Source Code Pro", monospace;
   font-size: 0.9rem;
   line-height: 1.5;
   transition: all 0.3s ease;
   outline: none;
+  margin: 0 auto;
+  display: block;
 }
 
 .console:focus {
@@ -322,7 +349,9 @@ select.dropdown option {
   color: #81c784;
 }
 
-/* Scrollbar styling for webkit browsers */
+/* =================================== */
+/* Scrollbars (WebKit only)            */
+/* =================================== */
 .console::-webkit-scrollbar,
 .dropdown-list::-webkit-scrollbar {
   width: 8px;
@@ -345,7 +374,9 @@ select.dropdown option {
   background: #8bc34a;
 }
 
-/* Focus states for accessibility */
+/* =================================== */
+/* Accessibility: Focus States         */
+/* =================================== */
 .dropdown-input:focus,
 .dropdown-item:focus-within,
 .execute-button:focus {
@@ -353,7 +384,10 @@ select.dropdown option {
   outline-offset: 2px;
 }
 
-.mutator-dropdowns{
+/* =================================== */
+/* Mutator Wrapper                     */
+/* =================================== */
+.mutator-dropdowns {
   display: flex;
   flex-direction: column;
   gap: 32px;
