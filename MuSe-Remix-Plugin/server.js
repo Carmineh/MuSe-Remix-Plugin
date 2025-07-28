@@ -11,11 +11,6 @@ const __dirname = path.dirname(__filename);
 const SUMO_REPO_PATH = path.resolve(__dirname, "../MuSe/");
 const PORT = 3001;
 
-// // HTTPS Certificate
-// const options = {
-// 	key: fs.readFileSync(path.join(__dirname, "certs/localhost-key.pem")),
-// 	cert: fs.readFileSync(path.join(__dirname, "certs/localhost.pem")),
-// };
 
 // Funzione per eseguire "npx sumo ..."
 function runSumoCommand(command, parameters = []) {
@@ -89,6 +84,15 @@ const server = http.createServer((req, res) => {
 	}
 
 	if (url.pathname === "/api/save" && method === "POST") {
+		const dirs = ['contracts', 'build', 'tests'];
+
+		for (const dir of dirs) {
+			const fullPath = path.join(SUMO_REPO_PATH, dir);
+			if (!fs.existsSync(fullPath)) {
+				console.log("stampata")
+				fs.mkdirSync(fullPath, { recursive: true });
+			}
+		}
 		const sumoDir = path.join(SUMO_REPO_PATH, "contracts");
 		if (fs.existsSync(sumoDir)) {
 			const files = fs.readdirSync(sumoDir);
@@ -126,7 +130,8 @@ const server = http.createServer((req, res) => {
 					fs.mkdirSync(targetDir);
 				}
 
-				const filePath = path.join("../MuSe/contracts/" + filename);
+				const dirPath = path.resolve(__dirname, "../MuSe/contracts");
+				const filePath = path.join(dirPath, filename);
 				fs.writeFileSync(filePath, typeof content === "string" ? content : JSON.stringify(content, null, 2));
 				res.writeHead(200, { "Content-Type": "application/json" });
 				return res.end(JSON.stringify({ message: `File saved to ${filePath}` }));
@@ -210,4 +215,20 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
 // Avvio server
 server.listen(PORT, "0.0.0.0", () => {
 	console.log(`Server HTTP su http://localhost:${PORT}`);
+});
+
+process.on("SIGINT", () => {
+	console.log("Received SIGINT. Shutting down...");
+	server.close(() => {
+		console.log("Server closed.");
+		process.exit(0);
+	});
+});
+
+process.on("SIGTERM", () => {
+	console.log("Received SIGTERM. Shutting down...");
+	server.close(() => {
+		console.log("Server closed.");
+		process.exit(0);
+	});
 });
