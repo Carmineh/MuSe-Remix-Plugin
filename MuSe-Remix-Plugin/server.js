@@ -11,10 +11,6 @@ const __dirname = path.dirname(__filename);
 const SUMO_REPO_PATH = path.resolve(__dirname, "../MuSe/");
 const PORT = 3001;
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 // Funzione per eseguire "npx sumo ..."
 function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
@@ -87,24 +83,12 @@ const server = http.createServer((req, res) => {
 	}
 
 	if (url.pathname === "/api/save" && method === "POST") {
-<<<<<<< Updated upstream
-		const dirs = ['contracts', 'build', 'tests'];
-=======
 		const dirs = ["contracts", "build", "tests"];
->>>>>>> Stashed changes
 
 		for (const dir of dirs) {
 			const fullPath = path.join(SUMO_REPO_PATH, dir);
 			if (!fs.existsSync(fullPath)) {
-<<<<<<< Updated upstream
-				console.log("stampata")
 				fs.mkdirSync(fullPath, { recursive: true });
-=======
-				fs.mkdirSync(fullPath, { recursive: true });
-				console.log("Made directory ", dir);
-			} else {
-				console.log("Directory already exist ", dir);
->>>>>>> Stashed changes
 			}
 		}
 		const sumoDir = path.join(SUMO_REPO_PATH, "contracts");
