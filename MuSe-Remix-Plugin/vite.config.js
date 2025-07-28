@@ -17,7 +17,7 @@ export default defineConfig({
 			cert: fs.readFileSync(path.resolve(__dirname, "certs/localhost.pem")),
 		},
 		port: 5173,
-		host: "localhost",
+		host: true,
 	},
 	// Define global for compatibility
 	define: {
