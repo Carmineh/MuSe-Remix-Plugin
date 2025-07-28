@@ -1,0 +1,6 @@
+node_modules
+MuSe/node_modules
+MuSe-Remix-Plugin/node_modules
+dist
+build
+.vite

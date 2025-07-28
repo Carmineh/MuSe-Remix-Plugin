@@ -8,7 +8,7 @@ export const useRemixClient = () => {
 	const [consoleMessages, setConsoleMessages] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 
-	const API_URL = "http://localhost:3001";
+	const API_URL = "https://localhost:3001";
 
 	const updateConsole = useCallback((message) => {
 		const timestamp = new Date().toLocaleTimeString();

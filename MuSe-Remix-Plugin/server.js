@@ -1,4 +1,4 @@
-import http from "http";
+import https from "https";
 import { exec } from "child_process";
 import { parse } from "url";
 import { fileURLToPath } from "url";
@@ -69,7 +69,7 @@ function runSumoCommand(command, parameters = []) {
 }
 
 // Server HTTP
-const server = http.createServer((req, res) => {
+const server = https.createServer((req, res) => {
 	const url = parse(req.url, true);
 	const method = req.method;
 
@@ -203,5 +203,5 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
 
 // Avvio server
 server.listen(PORT, () => {
-	console.log(`Sumo server avviato su http://localhost:${PORT}`);
+	console.log(`Sumo server avviato su https://localhost:${PORT}`);
 });
