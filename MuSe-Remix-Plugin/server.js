@@ -62,6 +62,16 @@ function runSumoCommand(command, parameters = []) {
 				break;
 			}
 
+			case "test": {
+				const testCMD = `npx sumo test`;
+				exec(testCMD, { cwd: SUMO_REPO_PATH }, (error, stdout, stderr) => {
+					if (error) return reject(stderr || error.message);
+					console.log(stdout);
+					resolve(stdout);
+				});
+				break;
+			}
+
 			default:
 				reject("NO COMMAND FOUND");
 		}
@@ -165,6 +175,39 @@ const server = http.createServer((req, res) => {
 				await runSumoCommand("disable");
 				await runSumoCommand("enable", mutators);
 				const output = await runSumoCommand("mutate");
+
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify({ output: output || "OK" }));
+			} catch (err) {
+				console.error("Errore durante la mutazione:", err.message);
+				res.writeHead(500, { "Content-Type": "application/json" });
+				res.end(JSON.stringify({ error: err.message }));
+			}
+		});
+		return;
+	}
+
+	if (url.pathname === "/api/test" && method === "POST") {
+		let body = "";
+
+		req.on("data", (chunk) => {
+			body += chunk.toString();
+		});
+
+		req.on("end", async () => {
+			let parsed;
+			try {
+				parsed = JSON.parse(body);
+			} catch (e) {
+				console.error("Errore nel parsing del JSON:", e.message);
+				res.writeHead(400, { "Content-Type": "application/json" });
+				return res.end(JSON.stringify({ error: "Invalid JSON format" }));
+			}
+
+			const mutators = parsed.mutators.map((m) => m.value);
+
+			try {
+				const output = await runSumoCommand("test");
 
 				res.writeHead(200, { "Content-Type": "application/json" });
 				res.end(JSON.stringify({ output: output || "OK" }));

@@ -68,7 +68,6 @@ export const useRemixClient = () => {
 			try {
 				const clientInstance = createClient();
 				setClient(clientInstance);
-
 				clientInstance.onload(async () => {
 					try {
 						// Plugin initialization
@@ -164,6 +163,9 @@ export const useRemixClient = () => {
 			console.error(error);
 		}
 	}
+	client.fileManager.on("fileChanged", (file) => {
+		console.log("File changed:", file);
+	});
 
 	return {
 		client,
