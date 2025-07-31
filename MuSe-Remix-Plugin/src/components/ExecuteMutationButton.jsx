@@ -1,4 +1,4 @@
-const ExecuteButton = ({ onExecute, disabled }) => {
+const ExecuteMutationButton = ({ onExecute, disabled }) => {
   return (
     <div className="section">
       <button 
@@ -6,10 +6,10 @@ const ExecuteButton = ({ onExecute, disabled }) => {
         onClick={onExecute}
         disabled={disabled}
       >
-        Execute Mutations
+        Mutate
       </button>
     </div>
   );
 };
 
-export default ExecuteButton;
+export default ExecuteMutationButton;

@@ -432,7 +432,12 @@ select.dropdown option {
 /* Execute Button                      */
 /* =================================== */
 .execute-button {
-  width: 75%;
+  flex: 1 1 0;
+  min-width: 200px;
+  max-width: 340px;
+  white-space: nowrap;   /* ← TESTO SEMPRE SU UNA RIGA */
+  text-align: center;
+  padding: 16px 24px;
   padding: 16px 24px;
   background: linear-gradient(135deg, var(--btn-gradient-start) 0%, var(--btn-gradient-end) 100%);
   color: white;
@@ -632,4 +637,11 @@ select.dropdown option {
   .dropdown__loading-indicator {
     color: var(--text-secondary) !important;
   }
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 16px; /* Spazio tra i bottoni */
 }

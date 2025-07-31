@@ -151,6 +151,30 @@ export const useRemixClient = () => {
 		[selectedContract, updateConsole, client]
 	);
 
+	const executeTesting = useCallback(
+		async (testingConfig) => {
+			updateConsole(
+				`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
+			);
+			try {
+				const response = await fetch(`${API_URL}/api/test`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(testingConfig),
+				});
+				const result = await response.json();
+				if (response.ok) {
+					updateConsole(`Testing complete: ${result.output}`);
+				} else {
+					updateConsole(`Testing error: ${result.error}`);
+				}
+			} catch (err) {
+				updateConsole(`Error during testing: ${err.message}`);
+			}
+		},
+		[updateConsole]
+	);
+
 	async function importDirectoryToRemix(remixPluginClient) {
 		try {
 			const response = await fetch(`${API_URL}/api/files-to-import`);
@@ -163,9 +187,6 @@ export const useRemixClient = () => {
 			console.error(error);
 		}
 	}
-	client.fileManager.on("fileChanged", (file) => {
-		console.log("File changed:", file);
-	});
 
 	return {
 		client,
@@ -177,6 +198,7 @@ export const useRemixClient = () => {
 		clearConsole,
 		loadContracts,
 		executeMutations,
+		executeTesting,
 		isLoading,
 	};
 };

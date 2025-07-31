@@ -49,7 +49,7 @@ export const SystemThemeWatcher = ({ showIndicator = true, className = '' }) => 
   }
 
   return (
-    <div className={`theme-indicator ${className}`}>
+    <div style={{ display: 'none' }} className={`theme-indicator ${className}`}>
       <span className="theme-indicator-icon">
         {isDark ? '🌙' : '☀️'}
       </span>

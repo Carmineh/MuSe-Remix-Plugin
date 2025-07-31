@@ -1,50 +1,50 @@
 import Header from './components/Header';
-import ExecuteButton from './components/ExecuteButton';
+import ExecuteMutationButton from './components/ExecuteMutationButton';
 import ConsoleOutput from './components/ConsoleOutput';
 import { useRemixClient } from './hooks/useRemixClient';
 import './styles/App.css';
 import ContractDropdown from './components/ContractDropdown';
 import MutatorDropdown from './components/MutatorDropdown';
-import { SystemThemeWatcher } from './components/ThemeToggle'; // Aggiungi questa riga
+import { SystemThemeWatcher } from './components/ThemeToggle';
 import { useState } from 'react';
 import { solidityOperators, genericOperators, securityOperators } from './utils/operators';
+import ExecuteTestingButton from './components/ExecuteTestingButton';
+import TestingConfigModal from './components/TestingConfigModal';
 
-function App() {
+function MutationApp() {
   const {
     contracts,
     selectedContract,
     setSelectedContract,
     consoleMessages,
     executeMutations,
+    executeTesting,
     isLoading,
   } = useRemixClient();
-  
-  // Generic mutation operators (minimal)
+
+  // Operator selections
   const [selectedGeneric, setSelectedGeneric] = useState([]);
-  // Solidity-specific mutation operators (standard)
   const [selectedSolidity, setSelectedSolidity] = useState([]);
-  // Security-oriented mutation operators (Muse)
   const [selectedSecurity, setSelectedSecurity] = useState([]);
-  
+
   const selectedMutators = [
     ...selectedGeneric,
     ...selectedSolidity,
     ...selectedSecurity,
   ];
 
+  // Testing configuration state
+  const [showTestingConfig, setShowTestingConfig] = useState(false);
+  const [testingConfig, setTestingConfig] = useState({
+    testingFramework: "truffle",
+    testingTimeOutInSec: 300,
+  });
+
   return (
     <>
-      {/* 
-        Sistema di tema automatico basato sulle impostazioni del sistema.
-        Cambia automaticamente quando modifichi Light/Dark mode nel tuo OS.
-        
-        Opzioni:
-        - showIndicator={true}  -> Mostra piccolo badge con tema corrente (consigliato)
-        - showIndicator={false} -> Solo cambio automatico, nessun indicatore
-      */}
       <SystemThemeWatcher showIndicator={true} />
-      
       <Header />
+
       <div className="plugin-ui">
         <ContractDropdown
           contracts={contracts}
@@ -75,14 +75,34 @@ function App() {
             isLoading={isLoading}
           />
         </div>
-        <ExecuteButton
-          onExecute={() => executeMutations(selectedMutators)}
+        <div className="actions">
+          <ExecuteMutationButton
+            onExecute={() => executeMutations(selectedMutators)}
+            disabled={isLoading || !selectedContract}
+          />
+          <ExecuteTestingButton
+            onExecute={() => {
+            setShowTestingConfig(true);
+            console.log("setShowTestingConfig(true) chiamato");
+          }}
           disabled={isLoading || !selectedContract}
         />
+        </div>
+        <TestingConfigModal
+          show={showTestingConfig}
+          config={testingConfig}
+          onRun={async (cfg) => {
+            setTestingConfig(cfg);
+            setShowTestingConfig(false);
+            await executeTesting(cfg);
+          }}
+          onClose={() => setShowTestingConfig(false)}
+        />
+
         <ConsoleOutput messages={consoleMessages} />
       </div>
     </>
   );
 }
 
-export default App;
+export default MutationApp;
