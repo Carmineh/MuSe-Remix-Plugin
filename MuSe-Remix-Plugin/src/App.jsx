@@ -18,6 +18,7 @@ function MutationApp() {
     setSelectedContract,
     consoleMessages,
     executeMutations,
+    getTestFiles,
     executeTesting,
     isLoading,
   } = useRemixClient();
@@ -94,7 +95,8 @@ function MutationApp() {
           onRun={async (cfg) => {
             setTestingConfig(cfg);
             setShowTestingConfig(false);
-            await executeTesting(cfg);
+            const testFiles = await getTestFiles();
+            await executeTesting(cfg, testFiles);
           }}
           onClose={() => setShowTestingConfig(false)}
         />

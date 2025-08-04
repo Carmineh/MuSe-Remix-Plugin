@@ -26,6 +26,9 @@ RUN npm install -g truffle hardhat
 RUN pip install --upgrade pip \
     && pip install eth-brownie
 
+RUN npm install -g ganache
+
+
 # Installa Foundry (Forge)
 RUN curl -L https://foundry.paradigm.xyz | bash \
     && /root/.foundry/bin/foundryup

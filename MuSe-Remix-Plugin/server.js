@@ -78,6 +78,35 @@ function runSumoCommand(command, parameters = []) {
 	});
 }
 
+function copyTestConfig() {
+
+	const templatesDir = path.join(__dirname, 'src', 'utils', 'templates');
+	const destinationDir = path.join(__dirname,"..", 'MuSe');
+
+	fs.readdir(templatesDir, (err, files) => {
+		if (err) {
+			console.error('Errore nella lettura della cartella templates:', err);
+			process.exit(1);
+		}
+
+		files.forEach(file => {
+			const srcPath = path.join(templatesDir, file);
+			const destPath = path.join(destinationDir, file);
+
+			if (fs.lstatSync(srcPath).isFile()) {
+				fs.copyFile(srcPath, destPath, (err) => {
+					if (err) {
+						console.error(`Errore nella copia di ${file}:`, err);
+					} else {
+						console.log(`${file} copiato in MuSe`);
+					}
+				});
+			}
+		});
+	});
+
+}
+
 // Server HTTP
 const server = http.createServer(async (req, res) => {
 	const url = parse(req.url, true);
@@ -86,6 +115,7 @@ const server = http.createServer(async (req, res) => {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
 	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
 
 	if (method === "OPTIONS") {
 		res.writeHead(204);
@@ -187,8 +217,80 @@ const server = http.createServer(async (req, res) => {
 		return;
 	}
 
-	if (url.pathname === "/api/test") {
-		await runSumoCommand("test");
+	if (url.pathname === "/api/test" && method === "POST") {
+		copyTestConfig();
+
+		let body = "";
+
+		req.on("data", (chunk) => {
+			body += chunk.toString();
+		});
+
+		req.on("end", async () => {
+			let parsed;
+			try {
+				parsed = JSON.parse(body);
+			} catch (e) {
+				console.error("Errore nel parsing del JSON:", e.message);
+				res.writeHead(400, { "Content-Type": "application/json" });
+				return res.end(JSON.stringify({ error: "Invalid JSON format" }));
+			}
+
+			const { testingConfig, testFiles } = parsed;
+
+
+			try {
+				// Salva i file nella cartella tests
+				const testsDir = path.join(SUMO_REPO_PATH, "tests");
+				if (!fs.existsSync(testsDir)) {
+					fs.mkdirSync(testsDir, { recursive: true });
+				}
+
+				for (const file of testFiles) {
+					const filePath = path.join(testsDir, file.name);
+					fs.writeFileSync(filePath, file.content);
+				}
+
+				//const configPath = path.join(__dirname, '..', 'MuSe', 'sumo-config.js');
+				const configPath = path.join(SUMO_REPO_PATH, 'sumo-config.js');
+				let content;
+				try {
+					content = fs.readFileSync(configPath, 'utf-8');
+				} catch (err) {
+					console.error('Errore nella lettura di sumo-config.js:', err);
+					process.exit(1);
+				}
+
+				content = content.replace(
+					/(testingFramework:\s*)["'][^"']*["']/,
+					`$1"${testingConfig.testingFramework}"`
+				);
+
+				content = content.replace(
+					/(testingTimeOutInSec:\s*)\d+/,
+					`$1${testingConfig.testingTimeOutInSec}`
+				);
+
+				try {
+					fs.writeFileSync(configPath, content, 'utf-8');
+					console.log('sumo-config.js aggiornato ');
+				} catch (err) {
+					console.error('Errore nella scrittura del file:', err);
+				}
+
+
+
+				// Esegui il comando di testing
+				const output = await runSumoCommand("test", testingConfig);
+
+				res.writeHead(200, { "Content-Type": "application/json" });
+				res.end(JSON.stringify({ output: output || "OK" }));
+			} catch (err) {
+				console.error("Errore durante il testing:", err.message);
+				res.writeHead(500, { "Content-Type": "application/json" });
+				res.end(JSON.stringify({ error: err.message }));
+			}
+		});
 		return;
 	}
 

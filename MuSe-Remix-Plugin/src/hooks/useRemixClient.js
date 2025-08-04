@@ -20,6 +20,9 @@ export const useRemixClient = () => {
 		setConsoleMessages([]);
 	}, []);
 
+	// Get test from Remix
+
+
 	// Get contracts from Remix fileManager
 	const getContractsFromRemix = useCallback(async (clientInstance) => {
 		const folder = "contracts";
@@ -151,18 +154,46 @@ export const useRemixClient = () => {
 		[selectedContract, updateConsole, client]
 	);
 
+	async function getTestFiles() {
+		try {
+
+			const files = await client.fileManager.readdir("tests");
+			const testFiles = [];
+
+			for (const [name, metadata] of Object.entries(files)) {
+				if (!metadata.isDirectory) {
+					const content = await client.fileManager.readFile(`${name}`);
+					testFiles.push({ name: name.replace("tests/", ""), content });
+
+				}
+			}
+			console.log(testFiles);
+			return testFiles;
+		} catch (error) {
+			console.error("Error reading test files:", error);
+			return [];
+		}
+	}
+
 	const executeTesting = useCallback(
-		async (testingConfig) => {
+		async (testingConfig, testFiles) => {
 			updateConsole(
 				`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
 			);
+			console.log(testFiles);
+			const formattedTestFiles = testFiles.map((file) => ({
+				name: file.name,
+				content: file.content,
+			}));
+			console.log(formattedTestFiles);
 			try {
 				const response = await fetch(`${API_URL}/api/test`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(testingConfig),
+					body: JSON.stringify({ testingConfig, testFiles: formattedTestFiles }),
 				});
 				const result = await response.json();
+				console.log(result);
 				if (response.ok) {
 					updateConsole(`Testing complete: ${result.output}`);
 				} else {
@@ -199,6 +230,7 @@ export const useRemixClient = () => {
 		loadContracts,
 		executeMutations,
 		executeTesting,
+		getTestFiles,
 		isLoading,
 	};
 };

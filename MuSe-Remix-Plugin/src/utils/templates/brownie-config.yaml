@@ -1,0 +1,15 @@
+compiler:
+  solc:
+    version: "0.8.20"
+    optimizer:
+      enabled: true
+      runs: 200
+
+networks:
+  default: development
+  development:
+    gas_limit: 6721975
+    gas_price: 0
+
+pytest:
+  xvs: true
