@@ -2,6 +2,7 @@ import http from "http";
 import { exec } from "child_process";
 import { parse } from "url";
 import { fileURLToPath } from "url";
+import { MuSeReportGenerator } from './src/utils/generate_report.js';
 import path from "path";
 import fs from "fs";
 
@@ -278,13 +279,23 @@ const server = http.createServer(async (req, res) => {
 					console.error('Errore nella scrittura del file:', err);
 				}
 
-
-
 				// Esegui il comando di testing
 				const output = await runSumoCommand("test", testingConfig);
+				//TODO test
+
+				const last10Lines = output.split("\n").slice(-10).join("\n");
+
+				// Generation report
+				const generator = new MuSeReportGenerator();
+				const reportPath = generator.generateReport();
+				console.log(`Report generated at: ${reportPath}`);
+				//send to remix
+				const reportContent = fs.readFileSync(reportPath, "utf8");
+
 
 				res.writeHead(200, { "Content-Type": "application/json" });
-				res.end(JSON.stringify({ output: output || "OK" }));
+				res.end(JSON.stringify({ output: last10Lines || "OK", report: reportContent }));
+
 			} catch (err) {
 				console.error("Errore durante il testing:", err.message);
 				res.writeHead(500, { "Content-Type": "application/json" });
@@ -330,6 +341,7 @@ function getAllFiles(dirPath, arrayOfFiles = []) {
 // Avvio server
 server.listen(PORT, "0.0.0.0", () => {
 	console.log(`Server HTTP su http://localhost:${PORT}`);
+
 });
 
 process.on("SIGINT", () => {

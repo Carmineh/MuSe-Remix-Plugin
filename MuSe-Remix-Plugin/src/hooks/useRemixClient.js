@@ -167,7 +167,7 @@ export const useRemixClient = () => {
 
 				}
 			}
-			console.log(testFiles);
+
 			return testFiles;
 		} catch (error) {
 			console.error("Error reading test files:", error);
@@ -180,12 +180,10 @@ export const useRemixClient = () => {
 			updateConsole(
 				`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
 			);
-			console.log(testFiles);
-			const formattedTestFiles = testFiles.map((file) => ({
-				name: file.name,
-				content: file.content,
-			}));
-			console.log(formattedTestFiles);
+
+			const contractName = selectedContract.split("/").pop().replace(".sol", "");
+			const formattedTestFiles = testFiles.filter(file => file.name.toLowerCase().includes(contractName.toLowerCase()) && file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase()));
+
 			try {
 				const response = await fetch(`${API_URL}/api/test`, {
 					method: "POST",
@@ -193,9 +191,10 @@ export const useRemixClient = () => {
 					body: JSON.stringify({ testingConfig, testFiles: formattedTestFiles }),
 				});
 				const result = await response.json();
-				console.log(result);
 				if (response.ok) {
 					updateConsole(`Testing complete: ${result.output}`);
+					await client.fileManager.setFile("/MuSe/results/report.html", result.report);
+					updateConsole("Report saved to /MuSe/results/report.html");
 				} else {
 					updateConsole(`Testing error: ${result.error}`);
 				}
