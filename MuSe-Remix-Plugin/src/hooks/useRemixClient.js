@@ -20,9 +20,6 @@ export const useRemixClient = () => {
 		setConsoleMessages([]);
 	}, []);
 
-	// Get test from Remix
-
-
 	// Get contracts from Remix fileManager
 	const getContractsFromRemix = useCallback(async (clientInstance) => {
 		const folder = "contracts";
@@ -51,15 +48,8 @@ export const useRemixClient = () => {
 		if (!client) return;
 
 		try {
-			updateConsole("Loading contracts...");
 			const contractsList = await getContractsFromRemix(client);
 			setContracts(contractsList);
-
-			if (contractsList.length === 0) {
-				updateConsole("No contracts found in contracts folder.");
-			} else {
-				updateConsole(`Loaded ${contractsList.length} contracts.`);
-			}
 		} catch (error) {
 			updateConsole(`Error loading contracts: ${error.message}`);
 		}
@@ -156,7 +146,6 @@ export const useRemixClient = () => {
 
 	async function getTestFiles() {
 		try {
-
 			const files = await client.fileManager.readdir("tests");
 			const testFiles = [];
 
@@ -164,7 +153,6 @@ export const useRemixClient = () => {
 				if (!metadata.isDirectory) {
 					const content = await client.fileManager.readFile(`${name}`);
 					testFiles.push({ name: name.replace("tests/", ""), content });
-
 				}
 			}
 
@@ -182,7 +170,11 @@ export const useRemixClient = () => {
 			);
 
 			const contractName = selectedContract.split("/").pop().replace(".sol", "");
-			const formattedTestFiles = testFiles.filter(file => file.name.toLowerCase().includes(contractName.toLowerCase()) && file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase()));
+			const formattedTestFiles = testFiles.filter(
+				(file) =>
+					file.name.toLowerCase().includes(contractName.toLowerCase()) &&
+					file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
+			);
 
 			try {
 				const response = await fetch(`${API_URL}/api/test`, {
@@ -193,8 +185,7 @@ export const useRemixClient = () => {
 				const result = await response.json();
 				if (response.ok) {
 					updateConsole(`Testing complete: ${result.output}`);
-					if(!client)
-						return;
+					if (!client) return;
 					await client.fileManager.writeFile("/MuSe/results/report.html", result.report);
 					updateConsole("Report saved to /MuSe/results/report.html");
 				} else {
@@ -204,7 +195,7 @@ export const useRemixClient = () => {
 				updateConsole(`Error during testing: ${err.message}`);
 			}
 		},
-		[client,updateConsole]
+		[client, updateConsole]
 	);
 
 	async function importDirectoryToRemix(remixPluginClient) {
@@ -219,6 +210,30 @@ export const useRemixClient = () => {
 			console.error(error);
 		}
 	}
+
+	useEffect(() => {
+		const handleFileAdded = (file) => {
+			loadContracts();
+			return;
+		};
+
+		const handleFileRemoved = (file) => {
+			loadContracts();
+			return;
+		};
+
+		const handleFileRenamed = (file) => {
+			loadContracts();
+			return;
+		};
+
+		if (client) {
+			// Aggiungi i listener
+			client.on("fileManager", "fileAdded", handleFileAdded);
+			client.on("fileManager", "fileRemoved", handleFileRemoved);
+			client.on("fileManager", "fileRenamed", handleFileRenamed);
+		}
+	}, [client]);
 
 	return {
 		client,

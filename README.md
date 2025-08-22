@@ -23,7 +23,7 @@ A mutation-based tool for generating benchmarks by injecting vulnerabilities int
 
 <h2 id="rocket-installation">🚀 Installation</h2>
 
-<h3 id="wrench-option-1--docker">🔧 Option 1 – Docker</h3>
+<h3 id="wrench-option-1--docker">🔧 Option 1 – Docker (Recommended)</h3>
 
 ```bash
 # Pull the image from DockerHub
@@ -33,11 +33,11 @@ docker pull danielecarangelo/muse-remix-plugin
 docker run --rm -p 3001:3001 danielecarangelo/muse-remix-plugin
 ```
 
-<h3 id="computer-option-2--local-setup">💻 Option 2 – Local Setup</h3>
+<h3 id="computer-option-2--local-setup">💻 Option 2 – Local Setup (Only Linus-Based OS)</h3>
 
 ```bash
 # Clone the repository
-git clone https://github.com/Carmineh/MuSe-Remix-Plugin.git
+git clone --recurse-submodules https://github.com/Carmineh/MuSe-Remix-Plugin.git
 cd MuSe-Remix-Plugin
 
 # Install dependencies for MuSe
@@ -45,11 +45,10 @@ cd MuSe
 npm install
 
 # Install dependencies for the plugin
-cd MuSe-Remix-Plugin
+cd ../MuSe-Remix-Plugin
 npm install
 
-# Start the server
-cd MuSe-Remix-Plugin
+# Start the server inside MuSe-Remix-Plugin
 node server.js
 ```
 
@@ -60,11 +59,11 @@ node server.js
 3. Click on **Connect to a Local Plugin**
 4. Enter the following:
    ```yaml
-    Plugin Name: Muse
-    Display Name: Muse
-    Url: https://carmineh.github.io/MuSe-Remix-Plugin/
-    ```
-6. Activate the plugin
+   Plugin Name: MuSe
+   Display Name: MuSe
+   Url: https://carmineh.github.io/MuSe-Remix-Plugin/
+   ```
+5. Activate the plugin
 
 <p align="center">
 <img width="800" height="640" alt="InstallationRemix" src="https://github.com/user-attachments/assets/6170e5ac-1f9a-46b6-92a4-71d658c11c12" />
@@ -82,20 +81,56 @@ Once the plugin is installed:
 The MuSe Plugin UI includes:
 
 1. **Contract Selector**
+
    - Lists all compiled contracts in Remix under the `contracts/` folder
 
 2. **Mutant Selectors**
+
    - Each dropdown shows available mutation operators (mutants)
 
-3. **Execute Button**  
+3. **Mutate button**
    - Click to run mutation using selected contract and mutants
-   - The mutated contract will be automatically added to Remix under the `MuSe/` folder
+   - The mutated contract will be automatically added to Remix under the `MuSe/`
+4. **Test Button**
+   - Open the Test Configuration to start the _Mutation testing_
 
-4. **Console**  
+5 **Test Configuration**
+
+- _Testing Framework_: Choose one of the 4 available frameworks
+- _Timeout_: A timeout in seconds to stop looped testings
+
+6. **Console**
    - A console that will show operations results and errors
-<p align="center">
-<img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
-</p>
+   <p align="center">
+   <img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
+   </p>
+
+<h3> 📑 Quick Start </h3>
+
+1. **Select a Contract**  
+   Use the dropdown menu to select the smart contract you want to test.
+
+2. **Choose Mutation Operators**  
+   Pick one or more _mutation operators_ from the provided list.
+
+3. **Click “Mutate”**  
+   Press the **Mutate** button to generate mutated versions of the selected contract.
+
+4. **Prepare the Test File**  
+   Make sure the test file is renamed correctly. Its name must contain both:
+
+   - The **contract name**
+   - The **test framework** you're using (e.g., `hardhat`, `truffle`, etc.)
+
+   > ⚠️ These keywords are **not case-sensitive**.  
+   > ✅ Example: `mycontract-hardhat.js`
+
+5. **Run the Test**  
+   Run your tests as you normally would using your test framework.
+
+6. **View the Mutation Report**  
+   Once the test run is complete, open the `MuSe/results/report.html` file.
+
 <h2 id="envelope-support">📬 Support</h2>
 
 If you encounter any bugs, have questions, or want to request new features, please open an [Issue](https://github.com/Carmineh/MuSe-Remix-Plugin/issues) in this repository.
@@ -107,5 +142,3 @@ When opening an issue, please provide:
 - Expected and actual behavior
 - Any relevant screenshots or logs
 - Your environment details (e.g., OS, Node version, Docker version)
-
-  

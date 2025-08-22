@@ -59,7 +59,7 @@ export default function TestingConfigModal({
             marginBottom: "28px",
           }}
         >
-          Configurazione Testing
+          Testing Configuration
         </h2>
         <div style={{ marginBottom: "18px" }}>
           <label
@@ -71,7 +71,7 @@ export default function TestingConfigModal({
               marginBottom: "8px",
             }}
           >
-            Framework di Testing:
+            Testing Framework:
           </label>
           <select
             value={testingFramework}
@@ -177,7 +177,7 @@ export default function TestingConfigModal({
             }}
             onClick={onClose}
           >
-            Annulla
+            Cancel
           </button>
         </div>
       </div>
