@@ -193,7 +193,9 @@ export const useRemixClient = () => {
 				const result = await response.json();
 				if (response.ok) {
 					updateConsole(`Testing complete: ${result.output}`);
-					await client.fileManager.setFile("/MuSe/results/report.html", result.report);
+					if(!client)
+						return;
+					await client.fileManager.writeFile("/MuSe/results/report.html", result.report);
 					updateConsole("Report saved to /MuSe/results/report.html");
 				} else {
 					updateConsole(`Testing error: ${result.error}`);
@@ -202,7 +204,7 @@ export const useRemixClient = () => {
 				updateConsole(`Error during testing: ${err.message}`);
 			}
 		},
-		[updateConsole]
+		[client,updateConsole]
 	);
 
 	async function importDirectoryToRemix(remixPluginClient) {
@@ -211,7 +213,7 @@ export const useRemixClient = () => {
 			const files = await response.json();
 
 			for (const file of files) {
-				await remixPluginClient.fileManager.setFile(file.path, file.content);
+				await remixPluginClient.fileManager.writeFile(file.path, file.content);
 			}
 		} catch (error) {
 			console.error(error);
