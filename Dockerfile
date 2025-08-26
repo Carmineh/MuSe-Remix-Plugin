@@ -28,7 +28,6 @@ RUN pip install --upgrade pip \
 
 RUN npm install -g ganache
 
-
 # Installa Foundry (Forge)
 RUN curl -L https://foundry.paradigm.xyz | bash \
     && /root/.foundry/bin/foundryup
@@ -42,7 +41,7 @@ WORKDIR /app
 # Copia tutto il progetto
 COPY . .
 
-# Installa dipendenze dei progetti Node
+# Installa dipendenze del progetto MuSe
 RUN npm install --prefix MuSe
 
 # Dipendenza per Hardhat
@@ -52,13 +51,18 @@ RUN npm install --prefix MuSe @nomicfoundation/hardhat-toolbox
 RUN npm install --prefix MuSe --save-dev @openzeppelin/test-helpers
 
 # Dipendenza per Foundry
-RUN cd MuSe
-RUN forge install foundry-rs/forge-std 
+RUN cd MuSe && forge install foundry-rs/forge-std
 
-RUN npm install --prefix MuSe-Remix-Plugin
+# Installa dipendenze dell'API service
+RUN npm install --prefix muse-api-service
 
-# Espone porta per Express o Vite
+# Crea directory necessarie per templates
+RUN mkdir -p muse-api-service/src/utils/templates
+RUN mkdir -p muse-api-service/temp
+
+# Espone porta per Express
 EXPOSE 3001
 
-# Comando di avvio
-CMD ["node", "MuSe-Remix-Plugin/server.js"]
+# Run npm start when container launches
+WORKDIR "/app/muse-api-service"
+CMD ["npm", "start"]

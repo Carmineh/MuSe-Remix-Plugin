@@ -1,6 +1,14 @@
 module.exports = {
-	compilers: {
-		solc: {
+	solidity: {
+		compilers: [
+			{
+				version: "0.8.20", // For your current contract
+			},
+			{
+				version: "0.7.3", // Default version Hardhat mentioned
+			},
+		],
+		settings: {
 			optimizer: {
 				enabled: true,
 				runs: 200,
