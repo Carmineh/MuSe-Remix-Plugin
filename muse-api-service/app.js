@@ -185,8 +185,14 @@ app.post("/api/mutate", async (req, res) => {
 		await runSumoCommand("disable");
 		await runSumoCommand("enable", mutators);
 		const output = await runSumoCommand("mutate");
+		const mutantsDir = path.join(PATHS.MUSE.SUMO_DIR, "results/mutants");
 
-		res.json({ output: output || "OK" });
+			// Read the directory and filter only files
+			const files = fs.readdirSync(mutantsDir).filter((file) => {
+				const filePath = path.join(mutantsDir, file);
+				return fs.statSync(filePath).isFile();
+			});
+		res.json({ output: files.length });
 	} catch (err) {
 		console.error("Errore durante la mutazione:", err.message);
 		res.status(500).json({ error: err.message });

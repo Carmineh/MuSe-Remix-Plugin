@@ -6,5 +6,5 @@ export default {
 	},
 	testMatch: ["**/tests/**/*.test.js"],
 	// Allow mocking non-existent modules
-	setupFiles: ["<rootDir>/jest.setup.js"],
+	setupFiles: ["<rootDir>/jest.setup.cjs"],
 };
