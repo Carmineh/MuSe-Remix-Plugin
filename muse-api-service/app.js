@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import { exec } from "child_process";
 import { fileURLToPath } from "url";
-import path from "path";
-import fs from "fs";
+import * as path from "path";
+import * as fs from "fs";
 import { MuSeReportGenerator } from "../MuSe-Remix-Plugin/src/utils/generate_report.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,7 +35,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: "10mb" })); // Parse JSON bodies
+app.use(express.json());
 
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {

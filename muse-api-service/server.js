@@ -2,12 +2,10 @@ import { app } from "./app.js";
 
 const PORT = 3001;
 
-// Start the server
 app.listen(PORT, "0.0.0.0", () => {
 	console.log(`Server HTTP running on http://localhost:${PORT}`);
 });
 
-// Handle server shutdown gracefully
 process.on("SIGINT", () => {
 	console.log("Received SIGINT. Shutting down...");
 	process.exit(0);

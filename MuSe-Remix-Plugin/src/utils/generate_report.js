@@ -1,93 +1,90 @@
-import fs from 'fs';
-import path from 'path';
-import {fileURLToPath} from "url";
-
+import * as fs from "fs";
+import * as path from "path";
+import { fileURLToPath } from "url";
 
 export class MuSeReportGenerator {
-    constructor() {
-        this.logFilePath = path.join('/app/MuSe/sumo/results/sumo-log.txt');
-        this.outputDir = path.join('/app/MuSe/sumo/results/');
-        this.reportData = {};
-    }
+	constructor() {
+		this.logFilePath = path.join("/app/MuSe/sumo/results/sumo-log.txt");
+		this.outputDir = path.join("/app/MuSe/sumo/results/");
+		this.reportData = {};
+	}
 
-    // Parsea il file di log per estrarre i dati
-    parseLogFile() {
-        try {
-            const logContent = fs.readFileSync(this.logFilePath, 'utf8');
+	// Parsea il file di log per estrarre i dati
+	parseLogFile() {
+		try {
+			const logContent = fs.readFileSync(this.logFilePath, "utf8");
 
-            // Estrai contract path
-            const contractMatch = logContent.match(/Contracts to be mutated.*?:\s*\(1\):\s*-\s*(.+)/);
-            const contractPath = contractMatch ? contractMatch[1].trim() : '';
-            const contractName = path.basename(contractPath);
+			// Estrai contract path
+			const contractMatch = logContent.match(/Contracts to be mutated.*?:\s*\(1\):\s*-\s*(.+)/);
+			const contractPath = contractMatch ? contractMatch[1].trim() : "";
+			const contractName = path.basename(contractPath);
 
-            // Estrai test file path
-            const testMatch = logContent.match(/Tests to be run.*?:\s*\(1\):\s*-\s*(.+)/);
-            const testPath = testMatch ? testMatch[1].trim() : '';
-            const testFile = path.basename(testPath);
+			// Estrai test file path
+			const testMatch = logContent.match(/Tests to be run.*?:\s*\(1\):\s*-\s*(.+)/);
+			const testPath = testMatch ? testMatch[1].trim() : "";
+			const testFile = path.basename(testPath);
 
-            // Estrai numero totale di mutanti
-            const totalMutantsMatch = logContent.match(/(\d+) mutation\(s\) found in ([\d.]+) seconds/);
-            const totalMutants = totalMutantsMatch ? parseInt(totalMutantsMatch[1]) : 0;
-            const generationTime = totalMutantsMatch ? totalMutantsMatch[2] : '0';
+			// Estrai numero totale di mutanti
+			const totalMutantsMatch = logContent.match(/(\d+) mutation\(s\) found in ([\d.]+) seconds/);
+			const totalMutants = totalMutantsMatch ? parseInt(totalMutantsMatch[1]) : 0;
+			const generationTime = totalMutantsMatch ? totalMutantsMatch[2] : "0";
 
-            // Estrai mutanti testati
-            const testedMutantsMatch = logContent.match(/- Tested mutants: (\d+)/);
-            const testedMutants = testedMutantsMatch ? parseInt(testedMutantsMatch[1]) : 0;
+			// Estrai mutanti testati
+			const testedMutantsMatch = logContent.match(/- Tested mutants: (\d+)/);
+			const testedMutants = testedMutantsMatch ? parseInt(testedMutantsMatch[1]) : 0;
 
-            // Estrai mutanti vivi
-            const liveMutantsMatch = logContent.match(/- Live mutants: (\d+)\s+--- Live: "([^"]+)"/);
-            const liveMutantsCount = liveMutantsMatch ? parseInt(liveMutantsMatch[1]) : 0;
-            const liveMutantsList = liveMutantsMatch ?
-                liveMutantsMatch[2].split(', ').map(m => m.trim()) : [];
+			// Estrai mutanti vivi
+			const liveMutantsMatch = logContent.match(/- Live mutants: (\d+)\s+--- Live: "([^"]+)"/);
+			const liveMutantsCount = liveMutantsMatch ? parseInt(liveMutantsMatch[1]) : 0;
+			const liveMutantsList = liveMutantsMatch ? liveMutantsMatch[2].split(", ").map((m) => m.trim()) : [];
 
-            // Estrai mutanti uccisi
-            const killedMutantsMatch = logContent.match(/- Killed mutants: (\d+)\s+--- Killed: "([^"]+)"/);
-            const killedMutantsCount = killedMutantsMatch ? parseInt(killedMutantsMatch[1]) : 0;
-            const killedMutantsList = killedMutantsMatch ?
-                killedMutantsMatch[2].split(', ').map(m => m.trim()) : [];
+			// Estrai mutanti uccisi
+			const killedMutantsMatch = logContent.match(/- Killed mutants: (\d+)\s+--- Killed: "([^"]+)"/);
+			const killedMutantsCount = killedMutantsMatch ? parseInt(killedMutantsMatch[1]) : 0;
+			const killedMutantsList = killedMutantsMatch ? killedMutantsMatch[2].split(", ").map((m) => m.trim()) : [];
 
-            // Estrai mutation score
-            const scoreMatch = logContent.match(/MUTATION SCORE = ([\d.]+)/);
-            const mutationScore = scoreMatch ? parseFloat(scoreMatch[1]) : 0;
+			// Estrai mutation score
+			const scoreMatch = logContent.match(/MUTATION SCORE = ([\d.]+)/);
+			const mutationScore = scoreMatch ? parseFloat(scoreMatch[1]) : 0;
 
-            // Estrai durata
-            const durationMatch = logContent.match(/(\d+) mutant\(s\) tested in ([\d.]+) minutes/);
-            const duration = durationMatch ? durationMatch[2] : '0';
+			// Estrai durata
+			const durationMatch = logContent.match(/(\d+) mutant\(s\) tested in ([\d.]+) minutes/);
+			const duration = durationMatch ? durationMatch[2] : "0";
 
-            const mutantDetailsPattern = /Mutant (\w+) was generated by (\w+)/g;
-            const mutantDetails = {};
-            let match;
-            while ((match = mutantDetailsPattern.exec(logContent)) !== null) {
-                mutantDetails[match[1]] = match[2]; // mutantId -> mutationType
-            }
+			const mutantDetailsPattern = /Mutant (\w+) was generated by (\w+)/g;
+			const mutantDetails = {};
+			let match;
+			while ((match = mutantDetailsPattern.exec(logContent)) !== null) {
+				mutantDetails[match[1]] = match[2]; // mutantId -> mutationType
+			}
 
-            this.reportData = {
-                contractName,
-                contractPath,
-                testFile,
-                testPath,
-                totalMutants,
-                testedMutants,
-                liveMutantsCount,
-                killedMutantsCount,
-                mutationScore,
-                duration,
-                generationTime,
-                liveMutantsList,
-                killedMutantsList,
-                mutantDetails
-            };
+			this.reportData = {
+				contractName,
+				contractPath,
+				testFile,
+				testPath,
+				totalMutants,
+				testedMutants,
+				liveMutantsCount,
+				killedMutantsCount,
+				mutationScore,
+				duration,
+				generationTime,
+				liveMutantsList,
+				killedMutantsList,
+				mutantDetails,
+			};
 
-            return this.reportData;
-        } catch (error) {
-            console.error('Errore nel parsing del log file:', error);
-            return null;
-        }
-    }
+			return this.reportData;
+		} catch (error) {
+			console.error("Errore nel parsing del log file:", error);
+			return null;
+		}
+	}
 
-    // Genera il template HTML
-    generateHTMLTemplate() {
-        return `<!DOCTYPE html>
+	// Genera il template HTML
+	generateHTMLTemplate() {
+		return `<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -471,47 +468,47 @@ export class MuSeReportGenerator {
     </script>
 </body>
 </html>`;
-    }
+	}
 
-    // Genera il report HTML
-    generateReport() {
-        try {
-            // Parsa il file di log
-            const data = this.parseLogFile();
-            if (!data) {
-                throw new Error('Impossibile parsare il file di log');
-            }
+	// Genera il report HTML
+	generateReport() {
+		try {
+			// Parsa il file di log
+			const data = this.parseLogFile();
+			if (!data) {
+				throw new Error("Impossibile parsare il file di log");
+			}
 
-            // Crea la directory di output se non esiste
-            if (!fs.existsSync(this.outputDir)) {
-                fs.mkdirSync(this.outputDir, { recursive: true });
-            }
+			// Crea la directory di output se non esiste
+			if (!fs.existsSync(this.outputDir)) {
+				fs.mkdirSync(this.outputDir, { recursive: true });
+			}
 
-            // Genera il template HTML
-            let htmlTemplate = this.generateHTMLTemplate();
+			// Genera il template HTML
+			let htmlTemplate = this.generateHTMLTemplate();
 
-            // Sostituisci i placeholder con i dati reali
-            const timestamp = new Date().toLocaleString();
-            htmlTemplate = htmlTemplate
-                .replace('{{TIMESTAMP}}', timestamp)
-                .replace('{{CONTRACT_NAME}}', data.contractName)
-                .replace('{{TEST_FILE}}', data.testFile)
-                .replace('{{DURATION}}', data.duration)
-                .replace('{{GENERATION_TIME}}', data.generationTime)
-                .replace('{{TOTAL_MUTANTS}}', data.totalMutants)
-                .replace('{{LIVE_MUTANTS}}', data.liveMutantsCount)
-                .replace('{{KILLED_MUTANTS}}', data.killedMutantsCount)
-                .replace('{{MUTATION_SCORE}}', data.mutationScore)
-                .replace('{{REPORT_DATA}}', JSON.stringify(data));
+			// Sostituisci i placeholder con i dati reali
+			const timestamp = new Date().toLocaleString();
+			htmlTemplate = htmlTemplate
+				.replace("{{TIMESTAMP}}", timestamp)
+				.replace("{{CONTRACT_NAME}}", data.contractName)
+				.replace("{{TEST_FILE}}", data.testFile)
+				.replace("{{DURATION}}", data.duration)
+				.replace("{{GENERATION_TIME}}", data.generationTime)
+				.replace("{{TOTAL_MUTANTS}}", data.totalMutants)
+				.replace("{{LIVE_MUTANTS}}", data.liveMutantsCount)
+				.replace("{{KILLED_MUTANTS}}", data.killedMutantsCount)
+				.replace("{{MUTATION_SCORE}}", data.mutationScore)
+				.replace("{{REPORT_DATA}}", JSON.stringify(data));
 
-            // Salva il report
-            const reportPath = path.join(this.outputDir, 'muse-report.html');
-            fs.writeFileSync(reportPath, htmlTemplate, 'utf8');
+			// Salva il report
+			const reportPath = path.join(this.outputDir, "muse-report.html");
+			fs.writeFileSync(reportPath, htmlTemplate, "utf8");
 
-            return reportPath;
-        } catch (error) {
-            console.error('Errore nella generazione del report:', error);
-            throw error;
-        }
-    }
+			return reportPath;
+		} catch (error) {
+			console.error("Errore nella generazione del report:", error);
+			throw error;
+		}
+	}
 }
