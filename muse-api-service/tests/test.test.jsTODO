@@ -1,0 +1,46 @@
+import request from "supertest";
+import { jest } from "@jest/globals";
+import * as fs from "fs";
+import * as path from "path";
+
+jest.unstable_mockModule("../../MuSe-Remix-Plugin/src/utils/generate_report.js", () => ({
+	MuSeReportGenerator: jest.fn().mockImplementation(() => ({
+		generateReport: jest.fn(() => path.resolve(__dirname, "fake-report.txt")),
+	})),
+}));
+
+const { app } = await import("../app.js");
+
+const TEST_CONTRACTS_DIR = path.resolve("./tests/test-contracts");
+
+describe("POST /api/test - real flow", () => {
+	beforeEach(() => {
+		// pulisce eventuali file precedenti
+		const testsDir = path.resolve("../MuSe/test");
+		if (fs.existsSync(testsDir)) {
+			fs.rmSync(testsDir, { recursive: true, force: true });
+		}
+		jest.clearAllMocks();
+	});
+
+	it("runs sumo on a real contract and test", async () => {
+		const contractFiles = fs
+			.readdirSync(TEST_CONTRACTS_DIR)
+			.filter((f) => f.endsWith(".sol") || f.endsWith(".js"))
+			.map((f) => ({
+				name: f,
+				content: fs.readFileSync(path.join(TEST_CONTRACTS_DIR, f), "utf8"),
+			}));
+
+		const res = await request(app)
+			.post("/api/test")
+			.send({
+				testingConfig: { testingFramework: "hardhat", testingTimeOutInSec: 300 },
+				testFiles: contractFiles,
+			});
+
+		expect(res.status).toBe(200);
+		expect(res.body.output).toBeDefined();
+		expect(res.body.report).toBeDefined();
+	});
+});
