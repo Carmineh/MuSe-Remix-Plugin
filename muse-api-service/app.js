@@ -40,17 +40,21 @@ app.use(express.json());
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
+		const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
+		if (fs.existsSync(npmNpxPath)) {
+			fs.rmSync(npmNpxPath, { recursive: true, force: true });
+		}
+
 		switch (command) {
 			case "disable": {
-				const sumoDir = PATHS.MUSE.SUMO_DIR;
-				if (fs.existsSync(sumoDir)) {
-					const files = fs.readdirSync(sumoDir);
-					for (const file of files) {
-						const filePath = path.join(sumoDir, file);
-						fs.rmSync(filePath, { recursive: true, force: true });
-					}
-				}
-
+				// const sumoDir = PATHS.MUSE.SUMO_DIR;
+				// if (fs.existsSync(sumoDir)) {
+				// 	const files = fs.readdirSync(sumoDir);
+				// 	for (const file of files) {
+				// 		const filePath = path.join(sumoDir, file);
+				// 		fs.rmSync(filePath, { recursive: true, force: true });
+				// 	}
+				// }
 				const disableCMD = `npx sumo ${command}`;
 				exec(disableCMD, { cwd: PATHS.MUSE_PROJECT }, (error, stdout, stderr) => {
 					if (error) return reject(stderr || error.message);
@@ -114,9 +118,7 @@ export function copyTestConfig() {
 
 			if (fs.lstatSync(srcPath).isFile()) {
 				fs.copyFile(srcPath, destPath, (err) => {
-					if (err) {
-						console.error(`Errore nella copia di ${file}:`, err);
-					} else {
+					if (!err) {
 						console.log(`${file} copiato in MuSe`);
 					}
 				});
@@ -187,11 +189,11 @@ app.post("/api/mutate", async (req, res) => {
 		const output = await runSumoCommand("mutate");
 		const mutantsDir = path.join(PATHS.MUSE.SUMO_DIR, "results/mutants");
 
-			// Read the directory and filter only files
-			const files = fs.readdirSync(mutantsDir).filter((file) => {
-				const filePath = path.join(mutantsDir, file);
-				return fs.statSync(filePath).isFile();
-			});
+		// Read the directory and filter only files
+		const files = fs.readdirSync(mutantsDir).filter((file) => {
+			const filePath = path.join(mutantsDir, file);
+			return fs.statSync(filePath).isFile();
+		});
 		res.json({ output: files.length });
 	} catch (err) {
 		console.error("Errore durante la mutazione:", err.message);
@@ -243,11 +245,11 @@ app.post("/api/test", async (req, res) => {
 		const generator = new MuSeReportGenerator();
 		const reportPath = generator.generateReport();
 		console.log(`Report generated at: ${reportPath}`);
-		const reportContent = fs.readFileSync(reportPath, "utf8");
+		const reportContent = fs.readFileSync(reportPath, "utf8");C
 
 		res.json({ output: last10Lines || "OK", report: reportContent });
 	} catch (err) {
-		console.error("Errore durante il testing:", err);
+		console.error("Errore durante il testing:", err.message || err);
 		res.status(500).json({ error: err.message });
 	}
 });
@@ -270,12 +272,16 @@ app.get("/api/files-to-import", (req, res) => {
 	}
 });
 
+app.get("/error-for-test", (req, res) => {
+	throw new Error("Test error");
+});
+
 // 404 handler
 app.use((req, res) => {
 	res.status(404).json({ error: "Not found" });
 });
 
-// Error handler middleware
+// Error handler
 app.use((err, req, res, next) => {
 	console.error("Server error:", err);
 	res.status(500).json({ error: err.message || "Internal Server Error" });

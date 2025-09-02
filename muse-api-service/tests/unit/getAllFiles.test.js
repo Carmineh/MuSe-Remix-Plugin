@@ -17,7 +17,7 @@ const path = await import("path");
 describe("getAllFiles", () => {
 	beforeEach(() => jest.clearAllMocks());
 
-	it("ritorna tutti i file ricorsivamente", () => {
+	it("[getAllFiles] Returns all files recursively", () => {
 		fs.readdirSync.mockReturnValueOnce(["file1", "dir1"]).mockReturnValueOnce(["nested.txt"]);
 
 		fs.statSync

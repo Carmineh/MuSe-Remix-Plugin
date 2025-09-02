@@ -21,7 +21,7 @@ const path = await import("path");
 describe("copyTestConfig", () => {
 	beforeEach(() => jest.clearAllMocks());
 
-	it("copia tutti i file dalla cartella templates", () => {
+	it("[copyTestConfig] Copy all the files from the template folder", () => {
 		fs.readdir.mockImplementation((dir, cb) => cb(null, ["a.txt", "b.txt"]));
 		fs.lstatSync.mockReturnValue({ isFile: () => true });
 		path.join.mockImplementation((...args) => args.join("/"));
@@ -37,7 +37,7 @@ describe("copyTestConfig", () => {
 		);
 	});
 
-	it("gestisce errore in readdir e termina il processo", () => {
+	it("[copyTestConfig] Handles error in readdir and exits the process", () => {
 		const exitSpy = jest.spyOn(process, "exit").mockImplementation(() => {
 			throw new Error("EXIT");
 		});
