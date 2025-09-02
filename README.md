@@ -3,8 +3,7 @@
 </p>
 
 # MuSe - MUtation SEeding tool Plugin for Remix IDE
-
-A mutation-based tool for generating benchmarks by injecting vulnerabilities into smart contracts. It features 6 mutation operators to inject vulnerabilities. [MuSe](https://github.com/GerardoIuliano/MuSe) is based on a mutation testing Tool called [SuMo](https://github.com/MorenaBarboni/SuMo-SOlidity-MUtator).
+**[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie and Forge, hybrid test suites, and custom test scripts.
 
 ## Table of Contents
 
@@ -102,8 +101,12 @@ The MuSe Plugin UI includes:
 6. **Console**
    - A console that will show operations results and errors
    <p align="center">
-   <img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
+    <img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
+    <img width="702" height="573" alt="Screenshot 2025-09-02 151214" src="https://github.com/user-attachments/assets/d80e19b5-b848-40be-b920-0af6e38969be" />
    </p>
+   
+<h3> 👾 Mutation Operators </h3>
+This plugin includes the mutation operators defined in <b><a href="https://github.com/GGFlutterdev/SuMo-SOlidity-MUtator?tab=readme-ov-file#mutation-operators-">Sumo</a></b> and <b><a href="https://github.com/GerardoIuliano/MuSe#mutation-operators-">MuSe</a></b>
 
 <h3> 📑 Quick Start </h3>
 
