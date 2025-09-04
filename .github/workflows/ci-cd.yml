@@ -50,7 +50,7 @@ jobs:
       - name: Start server
         working-directory: muse-api-service
         run: |
-          npm
+          npm start &
 
       - name: Wait for the Server API
         run: npx wait-on http://localhost:3001
