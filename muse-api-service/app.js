@@ -40,6 +40,7 @@ app.use(express.json());
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
+
 		const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
 		if (fs.existsSync(npmNpxPath)) {
 			fs.rmSync(npmNpxPath, { recursive: true, force: true });
@@ -140,15 +141,33 @@ export function getAllFiles(dirPath, arrayOfFiles = []) {
 	return arrayOfFiles;
 }
 
-// API Routes
-app.post("/api/save", (req, res) => {
-	const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+export function createFolders(dirs){
 
 	for (const dir of dirs) {
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
 		}
 	}
+}
+export function clearDirectories(dirs){
+
+	for (const dir of dirs) {
+		if (fs.existsSync(dir)) {
+			const files = fs.readdirSync(dir);
+			for (const file of files) {
+				const filePath = path.join(dir, file);
+				fs.rmSync(filePath, { recursive: true, force: true });
+			}
+		}
+	}
+}
+
+// API Routes
+app.post("/api/save", (req, res) => {
+
+	const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+
+	createFolders(dirs);
 
 	const contractsDir = PATHS.MUSE.CONTRACTS_DIR;
 	if (fs.existsSync(contractsDir)) {
@@ -184,6 +203,11 @@ app.post("/api/mutate", async (req, res) => {
 	try {
 		const mutators = req.body.mutators.map((m) => m.value);
 
+		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+
+		createFolders(dirs);
+
+
 		await runSumoCommand("disable");
 		await runSumoCommand("enable", mutators);
 		const output = await runSumoCommand("mutate");
@@ -204,6 +228,12 @@ app.post("/api/mutate", async (req, res) => {
 app.post("/api/test", async (req, res) => {
 	try {
 		copyTestConfig();
+
+		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+
+		createFolders(dirs);
+
+		clearDirectories([PATHS.MUSE.TESTS_DIR]);
 
 		const { testingConfig, testFiles } = req.body;
 
