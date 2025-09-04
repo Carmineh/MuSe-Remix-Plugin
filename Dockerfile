@@ -58,7 +58,6 @@ RUN npm install --prefix muse-api-service
 
 # Crea directory necessarie per templates
 RUN mkdir -p muse-api-service/src/utils/templates
-RUN mkdir -p muse-api-service/temp
 
 # Espone porta per Express
 EXPOSE 3001

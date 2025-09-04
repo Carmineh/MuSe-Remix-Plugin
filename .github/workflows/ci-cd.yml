@@ -30,6 +30,15 @@ jobs:
       - name: Install dependencies (API)
         run: npm install --prefix muse-api-service
 
+      - name: install brownie
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install eth-brownie
+
+      - name: install ganache
+        run: |
+          npm install -g ganache
+
       - name: Run tests (muse-api-service)
         working-directory: muse-api-service
         run: npm test
