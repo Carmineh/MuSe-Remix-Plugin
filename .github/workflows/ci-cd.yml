@@ -38,6 +38,14 @@ jobs:
         working-directory: MuSe-Remix-Plugin
         run: npm test
 
+      - name: Start server
+        working-directory: muse-api-service
+        run: node server.js &
+
+      - name: Run tests Playwright
+        working-directory: MuSe-Remix-Plugin
+        run: npx playwright test
+
       - name: Get version from package.json (API)
         id: version
         run: echo "VERSION=$(jq -r .version muse-api-service/package.json)" >> $GITHUB_OUTPUT

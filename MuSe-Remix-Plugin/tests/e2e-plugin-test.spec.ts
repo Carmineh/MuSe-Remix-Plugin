@@ -1,0 +1,278 @@
+import { test, expect } from '@playwright/test';
+import * as path from "path";
+import { readFile } from "fs/promises";
+
+
+test.beforeEach(async ({page}) => {
+
+    const contractDir = './tests/contractToTest';
+
+    const contentContract = await readFile(path.join(contractDir, "SimpleToken.sol"), 'utf-8');
+    const contentTest = await readFile(path.join(contractDir, "SimpleToken-brownie.py"), 'utf-8');
+
+    if(!contentContract) throw new Error("File SimpleToken.sol non trovato");
+    if(!contentTest) throw new Error("File SimpleToken-brownie.py non trovato");
+
+    await page.goto('https://remix.ethereum.org/');
+
+
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+    await page.locator('[data-test-id="virtuoso-item-list"]').getByText('tests').click({
+        button: 'right'
+    });
+    await page.getByText('New File').click();
+    await page.locator('[data-test-id="virtuoso-item-list"]').getByRole('textbox').fill('SimpleToken_brownie.py');
+    await page.locator('[data-test-id="virtuoso-item-list"]').getByRole('textbox').press('Enter');
+    await page.locator('.d-block > .monaco-editor > .overflow-guard > .monaco-scrollable-element.editor-scrollable > .lines-content > .view-lines').click();
+    await page.getByRole('textbox', { name: 'Editor content;Press Alt+F1' }).fill(contentTest);
+
+    await page.locator('[data-test-id="virtuoso-item-list"]').getByText('contracts').click();
+    await page.locator('[data-test-id="virtuoso-item-list"] span').nth(1).click();
+    await page.locator('[data-test-id="virtuoso-item-list"]').getByRole('textbox').fill('SimpleToken.sol');
+    await page.locator('[data-test-id="virtuoso-item-list"]').getByRole('textbox').press('Enter');
+    await page.locator('.d-block > .monaco-editor > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines').click();
+    await page.getByRole('textbox', { name: 'Editor content;Press Alt+F1' }).fill(contentContract);
+
+
+
+});
+
+test('Load plugin in Remix', async ({ page }) => {
+
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    const pluginFrame = await page.frameLocator('iframe[src*="carmineh.github.io/MuSe-Remix-Plugin/"]');
+    await expect(pluginFrame.locator('body')).toBeVisible();
+});
+
+test("Execute mutation", async ({ page }) => {
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().locator('.dropdown__control').first().click();
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Binary operator replacement' }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+    //expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
+   // await expect(page.locator('#plugin-muse').getByText("File saved successfully")).toBeVisible();
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("File saved successfully");
+
+
+});
+
+test("No mutant selected", async ({ page }) => {
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    //await page.locator('#plugin-muse').contentFrame().locator('.dropdown__control').first().click();
+    //await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Binary operator replacement' }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+
+
+    //expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator").isVisible());
+   // await expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator")).toBeVisible();
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("Please select at least one mutation operator");
+
+});
+
+
+test("Test complete successfully", async ({ page }) => {
+    //await page.goto('https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.30+commit.73712a01.js');
+    //await page.getByRole('button', { name: 'Accept' }).click();
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Integer underflow overflow' }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+   // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
+
+    await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'Test'}).click();
+    await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('brownie');
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
+
+    //await page.waitForTimeout(100000);
+
+    await page.waitForResponse(response =>
+        response.url().includes('/api/test') && response.status() === 200
+    );
+
+
+    //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
+    //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("Report saved");
+
+
+});
+
+
+test("No contract selected", async ({ page }) => {
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    //await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("Please select a contract first");
+
+});
+
+test("No mutant generated", async ({ page }) => {
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().locator('.dropdown__control').first().click();
+
+    //TODO selezionare un operatore che non genera mutanti
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Binary operator replacement' }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("No mutants generated");
+
+
+});
+
+
+test("No test file found", async ({ page }) => {
+    //await page.goto('https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.30+commit.73712a01.js');
+    //await page.getByRole('button', { name: 'Accept' }).click();
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Integer underflow overflow' }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+    // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
+
+    await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'Test'}).click();
+    await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('truffle');
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
+
+/* TODO should i do it?
+    await page.waitForResponse(response =>
+        response.url().includes('/api/test') && response.status() === 200
+    );
+*/
+    //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
+    //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("No test files found");
+
+
+});
+
+
+
+//TODO
+// test se non seleziono contratti  --> DONE
+// test se non seleziono mutazione   --> "Please select at least one mutation operator"  DONE
+// test se non vengono generati mutazioni --> DONE
+// test se non ci sono test    --> No test files found for the selected contract and framework DONE
+// test se il test va a buon fine   --> Report saved  DONE
