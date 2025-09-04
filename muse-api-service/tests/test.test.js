@@ -56,7 +56,7 @@ describe("POST /api/test", () => {
 	// Pulizia dopo tutti i test
 	afterAll(async () => {
 		try {
-			await fs.unlink(path.join(CONTRACT_DIR, "Simple.sol"));
+			//await fs.unlink(path.join(CONTRACT_DIR, "Simple.sol"));
 		} catch (err) {
 			console.error("Errore pulizia cartelle di test:", err);
 		}

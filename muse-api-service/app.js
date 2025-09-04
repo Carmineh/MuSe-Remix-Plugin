@@ -40,10 +40,10 @@ app.use(express.json());
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
-		const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
-		if (fs.existsSync(npmNpxPath)) {
-			fs.rmSync(npmNpxPath, { recursive: true, force: true });
-		}
+		// const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
+		// if (fs.existsSync(npmNpxPath)) {
+		// 	fs.rmSync(npmNpxPath, { recursive: true, force: true });
+		// }
 
 		switch (command) {
 			case "disable": {
@@ -211,7 +211,7 @@ app.post("/api/mutate", async (req, res) => {
 			const filePath = path.join(mutantsDir, file);
 			return fs.statSync(filePath).isFile();
 		});
-		res.json({ output: files.length });
+		res.status(200).json({ output: files.length });
 	} catch (err) {
 		console.error("Errore durante la mutazione:", err);
 		res.status(500).json({ error: err.message });
