@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "pw-test": "npx playwright install && npx playwright test"
   },
   "jest": {
     "testEnvironment": "jsdom",

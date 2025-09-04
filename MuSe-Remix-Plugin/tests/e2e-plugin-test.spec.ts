@@ -15,8 +15,17 @@ test.beforeEach(async ({page}) => {
 
     await page.goto('https://remix.ethereum.org/');
 
-
     await page.getByRole('button', { name: 'Accept' }).click();
+
+    try {
+        const productionBtn = await page.waitForSelector('[data-id="productionbtn"]', {
+            timeout: 5000 // aspetta max 2 secondi
+    });
+        await productionBtn.click();
+    } catch {
+        // Il bottone non è apparso: puoi loggare o ignorare
+        console.log('Production button not found, skipping click.');
+    }
 
     await page.locator('[data-test-id="virtuoso-item-list"]').getByText('tests').click({
         button: 'right'
@@ -206,7 +215,7 @@ test("No mutant generated", async ({ page }) => {
 
     //TODO selezionare un operatore che non genera mutanti
 
-    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Binary operator replacement' }).click();
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Enum replacement' }).click();
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
     await page.getByRole('checkbox', { name: 'Remember this choice' }).check();

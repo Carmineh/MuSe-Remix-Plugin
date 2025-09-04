@@ -49,11 +49,11 @@ jobs:
 
       - name: Start server
         working-directory: muse-api-service
-        run: node server.js &
+        run: npm start
 
       - name: Run tests Playwright
         working-directory: MuSe-Remix-Plugin
-        run: npx playwright test
+        run: npm run pw-test
 
       - name: Get version from package.json (API)
         if: github.ref == 'refs/heads/main'

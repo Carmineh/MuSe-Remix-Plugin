@@ -179,6 +179,7 @@ export const useRemixClient = () => {
 					file.name.toLowerCase().includes(contractName.toLowerCase()) &&
 					file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
 			);
+			console.log(formattedTestFiles);
 			if (formattedTestFiles.length === 0) updateConsole("No test files found for the selected contract and framework");
 
 			try {
