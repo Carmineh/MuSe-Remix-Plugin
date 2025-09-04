@@ -17,7 +17,7 @@ describe("POST /api/mutate", () => {
 
 	afterAll(async () => {
 		try {
-			await fs.unlink(path.join(contractDir, "Simple.sol"));
+			//await fs.unlink(path.join(contractDir, "Simple.sol"));
 		} catch (err) {
 			if (err.code !== "ENOENT") throw err; // ignora se il file non esiste
 		}
