@@ -309,4 +309,8 @@ app.use((err, req, res, next) => {
 	res.status(500).json({ error: err.message || "Internal Server Error" });
 });
 
+app.get("/", (req, res) => {
+	res.status(200).send("Server is running");
+});
+
 export { app };
