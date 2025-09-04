@@ -92,17 +92,19 @@ The MuSe Plugin UI includes:
    - The mutated contract will be automatically added to Remix under the `MuSe/`
 4. **Test Button**
    - Open the Test Configuration to start the _Mutation testing_
-
-5 **Test Configuration**
-
-- _Testing Framework_: Choose one of the 4 available frameworks
-- _Timeout_: A timeout in seconds to stop looped testings
+  
+5. **Test Configuration**
+   - _Testing Framework_: Choose one of the 4 available frameworks
+   - _Timeout_: A timeout in seconds to stop looped testings
 
 6. **Console**
    - A console that will show operations results and errors
+
    <p align="center">
+
     <img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
     <img width="702" height="573" alt="Screenshot 2025-09-02 151214" src="https://github.com/user-attachments/assets/d80e19b5-b848-40be-b920-0af6e38969be" />
+
    </p>
    
 <h3> 👾 Mutation Operators </h3>
