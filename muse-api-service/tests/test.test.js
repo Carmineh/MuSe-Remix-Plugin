@@ -74,7 +74,7 @@ describe("POST /api/test", () => {
 		await request(app)
 			.post("/api/mutate")
 			.send({
-				mutators: [{ value: "BOR" }],
+				mutators: [{ value: "VVR" }],
 			});
 
 		const res = await request(app)

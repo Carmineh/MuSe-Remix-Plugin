@@ -7,17 +7,17 @@ const { app } = await import("../app.js");
 
 describe("POST /api/mutate", () => {
 	const contractFile = "./tests/utils/contracts/Simple.sol";
-	const contractDir = "../MuSe/contracts"; // Dove andremo a copiare il file
+	const contractDir = "../MuSe/contracts";
 
 	beforeAll(async () => {
 		jest.clearAllMocks();
-		await fs.mkdir(contractDir, { recursive: true }); // Assicura che la cartella esista
+		await fs.mkdir(contractDir, { recursive: true });
 		await fs.copyFile(contractFile, path.join(contractDir, "Simple.sol"));
 	});
 
 	afterAll(async () => {
 		try {
-			//await fs.unlink(path.join(contractDir, "Simple.sol"));
+			await fs.unlink(path.join(contractDir, "Simple.sol"));
 		} catch (err) {
 			if (err.code !== "ENOENT") throw err; // ignora se il file non esiste
 		}
@@ -27,7 +27,7 @@ describe("POST /api/mutate", () => {
 		const res = await request(app)
 			.post("/api/mutate")
 			.send({
-				mutators: [{ value: "BOR" }],
+				mutators: [{ value: "VVR" }],
 			});
 		expect(res.status).toBe(200);
 	}, 1000000);

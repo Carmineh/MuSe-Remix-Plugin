@@ -40,7 +40,6 @@ app.use(express.json());
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
-
 		const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
 		if (fs.existsSync(npmNpxPath)) {
 			fs.rmSync(npmNpxPath, { recursive: true, force: true });
@@ -141,16 +140,14 @@ export function getAllFiles(dirPath, arrayOfFiles = []) {
 	return arrayOfFiles;
 }
 
-export function createFolders(dirs){
-
+export function createFolders(dirs) {
 	for (const dir of dirs) {
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir, { recursive: true });
 		}
 	}
 }
-export function clearDirectories(dirs){
-
+export function clearDirectories(dirs) {
 	for (const dir of dirs) {
 		if (fs.existsSync(dir)) {
 			const files = fs.readdirSync(dir);
@@ -164,7 +161,6 @@ export function clearDirectories(dirs){
 
 // API Routes
 app.post("/api/save", (req, res) => {
-
 	const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
 
 	createFolders(dirs);
@@ -202,11 +198,8 @@ app.post("/api/save", (req, res) => {
 app.post("/api/mutate", async (req, res) => {
 	try {
 		const mutators = req.body.mutators.map((m) => m.value);
-
 		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
-
 		createFolders(dirs);
-
 
 		await runSumoCommand("disable");
 		await runSumoCommand("enable", mutators);
@@ -220,7 +213,7 @@ app.post("/api/mutate", async (req, res) => {
 		});
 		res.json({ output: files.length });
 	} catch (err) {
-		console.error("Errore durante la mutazione:", err.message);
+		console.error("Errore durante la mutazione:", err);
 		res.status(500).json({ error: err.message });
 	}
 });
@@ -275,9 +268,8 @@ app.post("/api/test", async (req, res) => {
 		const generator = new MuSeReportGenerator();
 		const reportPath = generator.generateReport();
 		console.log(`Report generated at: ${reportPath}`);
-		const reportContent = fs.readFileSync(reportPath, "utf8");C
-
-		res.json({ output: last10Lines || "OK", report: reportContent });
+		const reportContent = fs.readFileSync(reportPath, "utf8");
+		res.status(200).json({ output: last10Lines || "OK", report: reportContent });
 	} catch (err) {
 		console.error("Errore durante il testing:", err.message || err);
 		res.status(500).json({ error: err.message });
