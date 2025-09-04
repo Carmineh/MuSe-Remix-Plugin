@@ -71,6 +71,12 @@ describe("POST /api/test", () => {
 			testFiles.push({ name: f, content });
 		}
 
+		await request(app)
+			.post("/api/mutate")
+			.send({
+				mutators: [{ value: "BOR" }],
+			});
+
 		const res = await request(app)
 			.post("/api/test")
 			.send({
