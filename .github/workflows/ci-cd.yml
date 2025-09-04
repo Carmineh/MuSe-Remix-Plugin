@@ -47,14 +47,6 @@ jobs:
         working-directory: MuSe-Remix-Plugin
         run: npm test
 
-      - name: Start server
-        working-directory: muse-api-service
-        run: |
-          npm start &
-
-      - name: Wait for the Server API
-        run: npx wait-on http://localhost:3001
-
       - name: Run tests Playwright
         working-directory: MuSe-Remix-Plugin
         run: npm run pw-test

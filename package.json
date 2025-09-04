@@ -2,7 +2,8 @@
   "name": "MuSe Remix Plugin",
   "version": "1.0.0",
   "scripts": {
-    "test": "concurrently \"npm --prefix MuSe-Remix-Plugin test\" \"npm --prefix muse-api-service test\""  },
+    "test": "concurrently \"npm --prefix MuSe-Remix-Plugin test\" \"npm --prefix muse-api-service test\""
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
