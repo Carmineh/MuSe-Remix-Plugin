@@ -65,11 +65,8 @@ jobs:
         with:
           node-version: 20.19.0
 
-
-      - name: Install Playwright browsers
-        working-directory: MuSe-Remix-Plugin
-        run: npx playwright install --with-deps
-
+      - name: Install dependencies (Plugin)
+        run: npm install --prefix MuSe-Remix-Plugin
 
       - name: Set up Docker Buildx
 
