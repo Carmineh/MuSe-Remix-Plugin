@@ -55,10 +55,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get version from package.json (API)
-
-        id: version
-        run: echo "VERSION=$(jq -r .version muse-api-service/package.json)" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
 
@@ -72,11 +68,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t muse-remix-plugin:${{ steps.version.outputs.VERSION }} .
+        run: docker build -t muse-remix-plugin:${{ github.sha }} .
 
       - name: Start docker image
         run: |
-          docker run --rm -p 3001:3001 muse-remix-plugin:${{ steps.version.outputs.VERSION }}
+          docker run --rm -p 3001:3001 muse-remix-plugin:${{ github.sha }}
           sleep 10  # Wait for the container to be fully up and running
 
 
@@ -88,9 +84,9 @@ jobs:
       - name: Push Docker image (only on main)
         if: github.ref == 'refs/heads/main'
         run: |
-            docker tag muse-remix-plugin:${{ steps.version.outputs.VERSION }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
-            docker tag muse-remix-plugin:${{ steps.version.outputs.VERSION }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ steps.version.outputs.VERSION }} 
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/iris_api:latest
+            docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+            docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }} 
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
 
 
       - name: Build and push Docker image
@@ -101,6 +97,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ steps.version.outputs.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
           cache-to: type=inline
