@@ -60,6 +60,12 @@ jobs:
         with:
           submodules: true
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+
       - name: Install Playwright browsers
         working-directory: MuSe-Remix-Plugin
         run: npx playwright install --with-deps
