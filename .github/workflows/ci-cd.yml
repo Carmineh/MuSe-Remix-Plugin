@@ -91,7 +91,7 @@ jobs:
 
       - name: Run tests Playwright
         working-directory: MuSe-Remix-Plugin
-        run: npx playwright test
+        run: npm run pw-test
 
       - name: Push Docker image (only on main)
         if: false
