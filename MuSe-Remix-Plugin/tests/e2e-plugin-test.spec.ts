@@ -142,7 +142,7 @@ test("Test complete successfully", async ({ page }) => {
     await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
 
     await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
-    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Integer underflow overflow' }).click();
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Tx origin' }).click();
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
     await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
