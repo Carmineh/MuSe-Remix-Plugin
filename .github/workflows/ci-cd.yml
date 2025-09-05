@@ -81,12 +81,11 @@ jobs:
 
 
       - name: Run tests Playwright
-        if: false
         working-directory: MuSe-Remix-Plugin
         run: npm run playwright test
 
       - name: Push Docker image (only on main)
-        if: github.ref == 'refs/heads/main'
+        if: false
         run: |
             docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
             docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }} 
@@ -94,7 +93,8 @@ jobs:
 
 
       - name: Build and push Docker image
-        if: github.ref == 'refs/heads/main'
+       # if: github.ref == 'refs/heads/main'
+        if: false
         uses: docker/build-push-action@v5
         with:
           context: .
