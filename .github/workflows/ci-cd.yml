@@ -60,6 +60,11 @@ jobs:
         with:
           submodules: true
 
+      - name: Install Playwright browsers
+        working-directory: MuSe-Remix-Plugin
+        run: npx playwright install --with-deps
+
+
       - name: Set up Docker Buildx
 
         uses: docker/setup-buildx-action@v3
@@ -78,6 +83,7 @@ jobs:
         run: |
           docker run -d --rm -p 3001:3001 muse-remix-plugin:${{ github.sha }}
           sleep 10  # Wait for the container to be fully up and running
+
 
 
       - name: Run tests Playwright
