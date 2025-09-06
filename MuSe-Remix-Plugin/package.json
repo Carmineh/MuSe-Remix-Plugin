@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "jest --verbose",
-    "pw-test": "npx playwright install && npx playwright test",
+    "pw-test": "npx playwright install && npx playwright test --browser=chromium",
     "start-api": "cd ../muse-api-service && npm start",
     "test:playwright": "playwright test"
   },

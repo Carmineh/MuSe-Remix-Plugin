@@ -12,6 +12,8 @@ async function createFile(page) {
     if(!contentContract) throw new Error("File SimpleToken.sol non trovato");
     if(!contentTest) throw new Error("File SimpleToken-brownie.py non trovato");
 
+    await page.waitForTimeout(2000);
+
     await page.locator('[data-test-id="virtuoso-item-list"]').getByText('tests').click({
         button: 'right'
     });
@@ -52,18 +54,11 @@ await page.context().clearCookies();
     await page.goto('https://remix.ethereum.org/');
 
     await page.getByRole('button', { name: 'Accept' }).click();
-/*
-    try {
-        const productionBtn = await page.waitForSelector('[data-id="productionbtn"]', {
-            timeout: 5000 // aspetta max 2 secondi
-        });
-        await productionBtn.click();
-    } catch {
-        // Il bottone non è apparso: puoi loggare o ignorare
-        console.log('Production button not found, skipping click.');
-    }
-*/
 
+    const cookieBtn = page.getByRole('button', { name: 'Production - only deployments' });
+    if (await cookieBtn.isVisible().catch(() => false)) {
+        await cookieBtn.click();
+    }
 
 });
 
