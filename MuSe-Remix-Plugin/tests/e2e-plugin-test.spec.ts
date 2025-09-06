@@ -155,7 +155,7 @@ test("No mutant selected", async ({ page }) => {
 });
 
 
-test.only("Test complete successfully", async ({ page }) => {
+test("Test complete successfully", async ({ page }) => {
 
 
     await createFile(page);
