@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
     testDir: './tests',
-    workers: 1 ,             // forza esecuzione in sequenza
+    workers: 1 ,
     timeout: 100_000,
     use: {
         headless: true,

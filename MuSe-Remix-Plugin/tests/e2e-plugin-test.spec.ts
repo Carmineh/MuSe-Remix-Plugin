@@ -23,6 +23,8 @@ async function createFile(page) {
     await page.locator('.d-block > .monaco-editor > .overflow-guard > .monaco-scrollable-element.editor-scrollable > .lines-content > .view-lines').click();
     await page.getByRole('textbox', { name: 'Editor content;Press Alt+F1' }).fill(contentTest);
 
+    await page.waitForTimeout(2000);
+
     await page.locator('[data-test-id="virtuoso-item-list"]').getByText('contracts').click();
     await page.locator('[data-test-id="virtuoso-item-list"] span').nth(1).click();
     await page.locator('[data-test-id="virtuoso-item-list"]').getByRole('textbox').fill('SimpleToken.sol');
@@ -82,7 +84,7 @@ test("No mutant generated", async ({ page }) => {
     await page.getByRole('button', { name: 'Accept' }).click();
 
     await page.waitForTimeout(2000);
-    console.log("Checking no mutants generated 1");
+    console.log("test 1");
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
@@ -154,8 +156,7 @@ test("No mutant selected", async ({ page }) => {
 
 
 test("Test complete successfully", async ({ page }) => {
-    //await page.goto('https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.30+commit.73712a01.js');
-    //await page.getByRole('button', { name: 'Accept' }).click();
+
 
     await createFile(page);
 
@@ -227,31 +228,20 @@ test("No test file found", async ({ page }) => {
 
     await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/1_Storage.sol');
 
-    await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
-    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Integer underflow overflow' }).click();
-
-    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
-    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
-    await page.getByRole('button', { name: 'Accept' }).click();
 
     // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
-    await page.waitForTimeout(2000);
 
-    await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
+    //await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'Test'}).click();
     await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('truffle');
     await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
 
-    /* TODO should i do it?
-        await page.waitForResponse(response =>
-            response.url().includes('/api/test') && response.status() === 200
-        );
-
-    */
-    console.log("test 7");
 
     await page.waitForTimeout(2000);
+
+    console.log("test 7");
+
     //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
     //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
