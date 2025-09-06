@@ -155,7 +155,7 @@ test("No mutant selected", async ({ page }) => {
 });
 
 
-test("Test complete successfully", async ({ page }) => {
+test.only("Test complete successfully", async ({ page }) => {
 
 
     await createFile(page);
@@ -190,8 +190,6 @@ test("Test complete successfully", async ({ page }) => {
     console.log("test 5");
 
 
-    //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
-    //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
