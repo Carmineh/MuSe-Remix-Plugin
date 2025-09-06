@@ -3,8 +3,7 @@ import * as path from "path";
 import { readFile } from "fs/promises";
 
 
-test.beforeEach(async ({page}) => {
-
+async function createFile(page) {
     const contractDir = './tests/contractToTest';
 
     const contentContract = await readFile(path.join(contractDir, "SimpleToken.sol"), 'utf-8');
@@ -13,20 +12,6 @@ test.beforeEach(async ({page}) => {
     if(!contentContract) throw new Error("File SimpleToken.sol non trovato");
     if(!contentTest) throw new Error("File SimpleToken-brownie.py non trovato");
 
-    await page.goto('https://remix.ethereum.org/');
-
-    await page.getByRole('button', { name: 'Accept' }).click();
-/*
-    try {
-        const productionBtn = await page.waitForSelector('[data-id="productionbtn"]', {
-            timeout: 5000 // aspetta max 2 secondi
-        });
-        await productionBtn.click();
-    } catch {
-        // Il bottone non è apparso: puoi loggare o ignorare
-        console.log('Production button not found, skipping click.');
-    }
-*/
     await page.locator('[data-test-id="virtuoso-item-list"]').getByText('tests').click({
         button: 'right'
     });
@@ -43,13 +28,10 @@ test.beforeEach(async ({page}) => {
     await page.locator('.d-block > .monaco-editor > .overflow-guard > .monaco-scrollable-element > .lines-content > .view-lines').click();
     await page.getByRole('textbox', { name: 'Editor content;Press Alt+F1' }).fill(contentContract);
 
+}
 
 
-});
-
-
-test("No mutant generated", async ({ page }) => {
-
+async function uploadPlugin(page) {
     await page.getByRole('img', { name: 'pluginManager' }).click();
     await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
     await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
@@ -60,6 +42,37 @@ test("No mutant generated", async ({ page }) => {
     await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
     await page.getByRole('button', { name: 'OK', exact: true }).click();
     await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+}
+test.beforeEach(async ({page}) => {
+
+await page.context().clearCookies();
+
+
+    await page.goto('https://remix.ethereum.org/');
+
+    await page.getByRole('button', { name: 'Accept' }).click();
+/*
+    try {
+        const productionBtn = await page.waitForSelector('[data-id="productionbtn"]', {
+            timeout: 5000 // aspetta max 2 secondi
+        });
+        await productionBtn.click();
+    } catch {
+        // Il bottone non è apparso: puoi loggare o ignorare
+        console.log('Production button not found, skipping click.');
+    }
+*/
+
+
+});
+
+
+test("No mutant generated", async ({ page }) => {
+
+    await createFile(page);
+
+    await uploadPlugin(page);
 
     await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
 
@@ -74,7 +87,7 @@ test("No mutant generated", async ({ page }) => {
     await page.getByRole('button', { name: 'Accept' }).click();
 
     await page.waitForTimeout(2000);
-
+    console.log("Checking no mutants generated 1");
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
@@ -86,32 +99,20 @@ test("No mutant generated", async ({ page }) => {
 
 test('Load plugin in Remix', async ({ page }) => {
 
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
+    await uploadPlugin(page);
+
+    console.log("test 2");
 
     const pluginFrame = await page.frameLocator('iframe[src*="carmineh.github.io/MuSe-Remix-Plugin/"]');
     await expect(pluginFrame.locator('body')).toBeVisible();
 });
 
 test("Execute mutation", async ({ page }) => {
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await createFile(page);
+
+    await uploadPlugin(page);
+
 
     await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
 
@@ -121,6 +122,8 @@ test("Execute mutation", async ({ page }) => {
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
     await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
     await page.getByRole('button', { name: 'Accept' }).click();
+
+    console.log("test 3");
 
     //expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
     // await expect(page.locator('#plugin-muse').getByText("File saved successfully")).toBeVisible();
@@ -133,24 +136,17 @@ test("Execute mutation", async ({ page }) => {
 });
 
 test("No mutant selected", async ({ page }) => {
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
+    await uploadPlugin(page);
 
-    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/1_Storage.sol');
 
     //await page.locator('#plugin-muse').contentFrame().locator('.dropdown__control').first().click();
     //await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Binary operator replacement' }).click();
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
 
+    console.log("test 4");
 
     //expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator").isVisible());
     // await expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator")).toBeVisible();
@@ -165,21 +161,17 @@ test("No mutant selected", async ({ page }) => {
 test("Test complete successfully", async ({ page }) => {
     //await page.goto('https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.30+commit.73712a01.js');
     //await page.getByRole('button', { name: 'Accept' }).click();
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await createFile(page);
+
+    await uploadPlugin(page);
+
 
     await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
 
     await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
     await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Tx origin' }).click();
+
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
     await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
@@ -199,6 +191,8 @@ test("Test complete successfully", async ({ page }) => {
         response.url().includes('/api/test') && response.status() === 200
     );
 
+    console.log("test 5");
+
     await page.waitForTimeout(2000);
 
     //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
@@ -213,21 +207,15 @@ test("Test complete successfully", async ({ page }) => {
 
 
 test("No contract selected", async ({ page }) => {
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
+    await uploadPlugin(page);
+
 
     //await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
     await page.waitForTimeout(2000);
+
+    console.log("test 6");
 
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
@@ -239,20 +227,11 @@ test("No contract selected", async ({ page }) => {
 
 
 test("No test file found", async ({ page }) => {
-    //await page.goto('https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.30+commit.73712a01.js');
-    //await page.getByRole('button', { name: 'Accept' }).click();
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
 
-    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+    await uploadPlugin(page);
+
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/1_Storage.sol');
 
     await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
     await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Integer underflow overflow' }).click();
@@ -276,6 +255,7 @@ test("No test file found", async ({ page }) => {
         );
 
     */
+    console.log("test 7");
 
     await page.waitForTimeout(2000);
     //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
@@ -287,12 +267,3 @@ test("No test file found", async ({ page }) => {
 
 
 });
-
-
-
-//TODO
-// test se non seleziono contratti  --> DONE
-// test se non seleziono mutazione   --> "Please select at least one mutation operator"  DONE
-// test se non vengono generati mutazioni --> DONE
-// test se non ci sono test    --> No test files found for the selected contract and framework DONE
-// test se il test va a buon fine   --> Report saved  DONE
