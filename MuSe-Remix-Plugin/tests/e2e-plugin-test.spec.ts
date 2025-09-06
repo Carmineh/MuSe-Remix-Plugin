@@ -16,17 +16,17 @@ test.beforeEach(async ({page}) => {
     await page.goto('https://remix.ethereum.org/');
 
     await page.getByRole('button', { name: 'Accept' }).click();
-
+/*
     try {
         const productionBtn = await page.waitForSelector('[data-id="productionbtn"]', {
             timeout: 5000 // aspetta max 2 secondi
-    });
+        });
         await productionBtn.click();
     } catch {
         // Il bottone non è apparso: puoi loggare o ignorare
         console.log('Production button not found, skipping click.');
     }
-
+*/
     await page.locator('[data-test-id="virtuoso-item-list"]').getByText('tests').click({
         button: 'right'
     });
@@ -46,6 +46,43 @@ test.beforeEach(async ({page}) => {
 
 
 });
+
+
+test("No mutant generated", async ({ page }) => {
+
+    await page.getByRole('img', { name: 'pluginManager' }).click();
+    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
+    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Display Name' }).click();
+    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
+    await page.getByRole('textbox', { name: 'Url (required)' }).click();
+    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
+    await page.getByRole('button', { name: 'OK', exact: true }).click();
+    await page.getByRole('img', { name: 'muse', exact: true }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().locator('.dropdown__value-container').first().click();
+
+    //TODO selezionare un operatore che non genera mutanti
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Enum replacement' }).click();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+    await page.waitForTimeout(2000);
+
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("No mutants generated");
+
+
+});
+
 
 test('Load plugin in Remix', async ({ page }) => {
 
@@ -86,7 +123,7 @@ test("Execute mutation", async ({ page }) => {
     await page.getByRole('button', { name: 'Accept' }).click();
 
     //expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
-   // await expect(page.locator('#plugin-muse').getByText("File saved successfully")).toBeVisible();
+    // await expect(page.locator('#plugin-muse').getByText("File saved successfully")).toBeVisible();
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
@@ -116,7 +153,7 @@ test("No mutant selected", async ({ page }) => {
 
 
     //expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator").isVisible());
-   // await expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator")).toBeVisible();
+    // await expect(page.locator('#plugin-muse').getByText("Please select at least one mutation operator")).toBeVisible();
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
@@ -148,7 +185,7 @@ test("Test complete successfully", async ({ page }) => {
     await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
     await page.getByRole('button', { name: 'Accept' }).click();
 
-   // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
+    // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
 
     await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
 
@@ -156,12 +193,13 @@ test("Test complete successfully", async ({ page }) => {
     await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('brownie');
     await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
 
-    //await page.waitForTimeout(100000);
+    await page.waitForTimeout(1000);
 
     await page.waitForResponse(response =>
         response.url().includes('/api/test') && response.status() === 200
     );
 
+    await page.waitForTimeout(2000);
 
     //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
     //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
@@ -189,6 +227,7 @@ test("No contract selected", async ({ page }) => {
     //await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
 
     await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.waitForTimeout(2000);
 
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
@@ -197,38 +236,6 @@ test("No contract selected", async ({ page }) => {
 
 });
 
-test("No mutant generated", async ({ page }) => {
-    await page.getByRole('img', { name: 'pluginManager' }).click();
-    await page.getByRole('button', { name: 'pluginManager Connect to an' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).click();
-    await page.getByRole('textbox', { name: 'Plugin Name (required)' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Display Name' }).click();
-    await page.getByRole('textbox', { name: 'Display Name' }).fill('muse');
-    await page.getByRole('textbox', { name: 'Url (required)' }).click();
-    await page.getByRole('textbox', { name: 'Url (required)' }).fill('https://carmineh.github.io/MuSe-Remix-Plugin/');
-    await page.getByRole('button', { name: 'OK', exact: true }).click();
-    await page.getByRole('img', { name: 'muse', exact: true }).click();
-
-    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
-
-    await page.locator('#plugin-muse').contentFrame().locator('.dropdown__control').first().click();
-
-    //TODO selezionare un operatore che non genera mutanti
-
-    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Enum replacement' }).click();
-
-    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
-    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
-    await page.getByRole('button', { name: 'Accept' }).click();
-
-
-    const pluginFrame = page.locator('#plugin-muse').contentFrame();
-    const consoleTextarea = pluginFrame.locator('#console');
-    const consoleText = await consoleTextarea.inputValue();
-    expect(consoleText).toContain("No mutants generated");
-
-
-});
 
 
 test("No test file found", async ({ page }) => {
@@ -255,6 +262,7 @@ test("No test file found", async ({ page }) => {
     await page.getByRole('button', { name: 'Accept' }).click();
 
     // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
+    await page.waitForTimeout(2000);
 
     await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
 
@@ -262,11 +270,14 @@ test("No test file found", async ({ page }) => {
     await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('truffle');
     await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
 
-/* TODO should i do it?
-    await page.waitForResponse(response =>
-        response.url().includes('/api/test') && response.status() === 200
-    );
-*/
+    /* TODO should i do it?
+        await page.waitForResponse(response =>
+            response.url().includes('/api/test') && response.status() === 200
+        );
+
+    */
+
+    await page.waitForTimeout(2000);
     //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
     //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
