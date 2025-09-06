@@ -180,15 +180,14 @@ test("Test complete successfully", async ({ page }) => {
     await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('brownie');
     await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
 
-    await page.waitForTimeout(1000);
-
+    await page.waitForTimeout(50000);
+/*
     await page.waitForResponse(response =>
         response.url().includes('/api/test') && response.status() === 200
     );
-
+*/
     console.log("test 5");
 
-    await page.waitForTimeout(2000);
 
     //expect(page.locator('#plugin-muse').getByText("xychbdsh").isVisible());
     //await expect(page.locator('#plugin-muse').getByText("Report saved")).toBeVisible();
