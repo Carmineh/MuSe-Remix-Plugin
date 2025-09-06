@@ -93,6 +93,49 @@ test("No mutant generated", async ({ page }) => {
 
 });
 
+test("Test complete successfully", async ({ page }) => {
+
+
+    await createFile(page);
+
+    await uploadPlugin(page);
+
+
+    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
+
+    await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
+    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Tx origin' }).click();
+
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
+    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
+    await page.getByRole('button', { name: 'Accept' }).click();
+
+    // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
+
+    await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
+
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'Test'}).click();
+    await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('brownie');
+    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
+
+    await page.waitForTimeout(50000);
+    /*
+        await page.waitForResponse(response =>
+            response.url().includes('/api/test') && response.status() === 200
+        );
+    */
+    console.log("test 5");
+
+
+    const pluginFrame = page.locator('#plugin-muse').contentFrame();
+    const consoleTextarea = pluginFrame.locator('#console');
+    const consoleText = await consoleTextarea.inputValue();
+    expect(consoleText).toContain("Report saved");
+
+
+});
+
 
 test('Load plugin in Remix', async ({ page }) => {
 
@@ -151,50 +194,6 @@ test("No mutant selected", async ({ page }) => {
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
     expect(consoleText).toContain("Please select at least one mutation operator");
-
-});
-
-
-test("Test complete successfully", async ({ page }) => {
-
-
-    await createFile(page);
-
-    await uploadPlugin(page);
-
-
-    await page.locator('#plugin-muse').contentFrame().getByLabel('Select Contract').selectOption('contracts/SimpleToken.sol');
-
-    await page.locator('#plugin-muse').contentFrame().locator('div:nth-child(3) > .css-b62m3t-container > .dropdown__control > .dropdown__value-container').click();
-    await page.locator('#plugin-muse').contentFrame().getByRole('option', { name: 'Tx origin' }).click();
-
-
-    await page.locator('#plugin-muse').contentFrame().getByRole('button', { name: 'Mutate' }).click();
-    await page.getByRole('checkbox', { name: 'Remember this choice' }).check();
-    await page.getByRole('button', { name: 'Accept' }).click();
-
-    // expect(page.locator('#plugin-muse').getByText("File saved successfully").isVisible());
-
-    await page.locator('#plugin-muse').contentFrame().getByText("File saved successfully").waitFor();
-
-    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'Test'}).click();
-    await page.locator('#plugin-muse').contentFrame().locator('div').filter({hasText: /^Testing Framework:BrownieHardhatForge \(Foundry\)Truffle$/}).getByRole('combobox').selectOption('brownie');
-    await page.locator('#plugin-muse').contentFrame().getByRole('button', {name: 'RUN'}).click();
-
-    await page.waitForTimeout(50000);
-/*
-    await page.waitForResponse(response =>
-        response.url().includes('/api/test') && response.status() === 200
-    );
-*/
-    console.log("test 5");
-
-
-    const pluginFrame = page.locator('#plugin-muse').contentFrame();
-    const consoleTextarea = pluginFrame.locator('#console');
-    const consoleText = await consoleTextarea.inputValue();
-    expect(consoleText).toContain("Report saved");
-
 
 });
 
