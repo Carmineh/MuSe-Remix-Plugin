@@ -5,7 +5,7 @@ export default defineConfig({
     workers: 1 ,             // forza esecuzione in sequenza
     timeout: 120_000,
     use: {
-        headless: false,
+        headless: true,
         viewport: { width: 1280, height: 800 },
         ignoreHTTPSErrors: true,
     },
