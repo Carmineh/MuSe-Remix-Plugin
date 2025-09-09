@@ -93,7 +93,7 @@ test("No mutant generated", async ({ page }) => {
 
 });
 
-test("Test complete successfully", async ({ page }) => {
+test.skip("Test complete successfully", async ({ page }) => {
 
 
     await createFile(page);

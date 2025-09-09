@@ -92,12 +92,15 @@ jobs:
         run: npm run pw-test
 
       - name: Push Docker image (only on main)
-        if: false
+        if: github.ref == 'refs/heads/main'
         run: |
-            docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
-            docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }} 
-            docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
 
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
+      
+      
 
       - name: Build and push Docker image
        # if: github.ref == 'refs/heads/main'
