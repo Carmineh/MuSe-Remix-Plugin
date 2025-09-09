@@ -133,6 +133,18 @@ export default function TestingConfigModal({
             }}
           />
         </div>
+
+          <label
+              style={{
+                  display: "block",
+                  fontWeight: 300,
+                  fontSize: "1rem",
+                  color: "var(--text-primary)",
+                  marginBottom: "8px",
+              }}
+          >
+              Note: Make sure you have the testing file in /tests folder and is called "contractName-framework" (e.g. MyContract-truffle.js)
+          </label>
         <div
           style={{
             display: "flex",

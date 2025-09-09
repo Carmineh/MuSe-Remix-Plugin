@@ -79,14 +79,14 @@ function MutationApp() {
         <div className="actions">
           <ExecuteMutationButton
             onExecute={() => executeMutations(selectedMutators)}
-            disabled={isLoading || !selectedContract}
+            disabled={isLoading}
           />
           <ExecuteTestingButton
             onExecute={() => {
             setShowTestingConfig(true);
             console.log("setShowTestingConfig(true) chiamato");
           }}
-          disabled={isLoading || !selectedContract}
+          disabled={isLoading}
         />
         </div>
         <TestingConfigModal

@@ -1,0 +1,501 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - img [ref=e11] [cursor=pointer]
+            - generic [ref=e15]: Remix
+          - generic [ref=e16] [cursor=pointer]: v0.70.0
+        - group [ref=e18]:
+          - button "default_workspace  " [ref=e19] [cursor=pointer]:
+            - generic [ref=e20] [cursor=pointer]:
+              - generic [ref=e21] [cursor=pointer]: default_workspace
+              - generic [ref=e23] [cursor=pointer]:  
+        - generic [ref=e24]:
+          - group [ref=e25]:
+            - button " Login with GitHub" [ref=e26] [cursor=pointer]:
+              - generic [ref=e27] [cursor=pointer]:
+                - generic [ref=e28] [cursor=pointer]: 
+                - generic [ref=e29] [cursor=pointer]: Login with GitHub
+            - button [ref=e30] [cursor=pointer]
+          - button " Theme" [ref=e32] [cursor=pointer]:
+            - generic [ref=e33] [cursor=pointer]: 
+            - text: Theme
+          - generic [ref=e35] [cursor=pointer]: 
+      - generic [ref=e36]:
+        - generic [ref=e40]:
+          - generic [ref=e42]:
+            - img "remixaiassistant" [ref=e46]
+            - img "filePanel" [ref=e51] [cursor=pointer]
+            - img "search" [ref=e56] [cursor=pointer]
+            - generic [ref=e60] [cursor=pointer]:
+              - img "solidity" [ref=e61] [cursor=pointer]
+              - generic [ref=e62] [cursor=pointer]: 
+            - img "udapp" [ref=e67] [cursor=pointer]
+          - generic [ref=e70]:
+            - img "dgit" [ref=e74] [cursor=pointer]
+            - img "muse" [ref=e79] [cursor=pointer]
+          - img "pluginManager" [ref=e86] [cursor=pointer]
+        - generic [ref=e89]:
+          - generic [ref=e91]:
+            - heading "muse" [level=6] [ref=e92]
+            - generic [ref=e93]:
+              - generic [ref=e95]: 
+              - generic [ref=e97]: 
+              - generic [ref=e99]: 
+          - generic [ref=e101]:
+            - text:                                                                                                                                      +             +      +  
+            - iframe [active] [ref=e103]:
+              - generic [ref=f1e2]:
+                - banner [ref=f1e3]:
+                  - img "MuSe Logo" [ref=f1e6]
+                - generic [ref=f1e7]:
+                  - generic [ref=f1e8]:
+                    - generic [ref=f1e9]: Select Contract
+                    - combobox "Select Contract" [ref=f1e10] [cursor=pointer]:
+                      - option "Choose a contract..."
+                      - option "1_Storage.sol"
+                      - option "2_Owner.sol"
+                      - option "3_Ballot.sol"
+                      - option "SimpleToken.sol" [selected]
+                  - generic [ref=f1e11]:
+                    - generic [ref=f1e12]:
+                      - generic [ref=f1e13]: Generic mutation operators
+                      - generic [ref=f1e14]:
+                        - log [ref=f1e16]
+                        - generic [ref=f1e17]:
+                          - generic [ref=f1e18]:
+                            - generic [ref=f1e19]: Select operators...
+                            - combobox [ref=f1e21]
+                          - img [ref=f1e25]
+                    - generic [ref=f1e27]:
+                      - generic [ref=f1e28]: Solidity-specific mutation operators
+                      - generic [ref=f1e29]:
+                        - log [ref=f1e31]
+                        - generic [ref=f1e32]:
+                          - generic [ref=f1e33]:
+                            - generic [ref=f1e34]: Select operators...
+                            - combobox [ref=f1e36]
+                          - img [ref=f1e40]
+                    - generic [ref=f1e42]:
+                      - generic [ref=f1e43]: Security-oriented mutation operators
+                      - generic [ref=f1e44]:
+                        - log [ref=f1e46]
+                        - generic [ref=f1e47]:
+                          - generic [ref=f1e48]:
+                            - generic [ref=f1e49]:
+                              - generic [ref=f1e50]: IUO
+                              - button "Remove IUO" [ref=f1e51] [cursor=pointer]:
+                                - img [ref=f1e52] [cursor=pointer]
+                            - combobox [ref=f1e55]
+                          - generic [ref=f1e56]:
+                            - img [ref=f1e58]
+                            - img [ref=f1e62]
+                  - generic [ref=f1e64]:
+                    - button "Mutate" [ref=f1e66] [cursor=pointer]
+                    - button "Test" [ref=f1e68] [cursor=pointer]
+                  - generic [ref=f1e69]:
+                    - generic [ref=f1e70]: Console Output
+                    - textbox "Console Output" [ref=f1e72]: "[5:22:16 PM] MuSe Plugin loaded successfully. [5:22:16 PM] Loaded 4 contracts. [5:22:16 PM] Plugin ready for use. [5:22:17 PM] Starting mutation process for contracts/SimpleToken.sol... [5:22:21 PM] File saved successfully: OK [5:22:21 PM] Starting testing process with framework truffle and timeout 300 sec... [5:22:21 PM] No test files found for the selected contract and framework"
+        - generic [ref=e106]:
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - group "compile group" [ref=e113]:
+                  - button " Compile" [ref=e114] [cursor=pointer]:
+                    - generic [ref=e115] [cursor=pointer]: 
+                    - generic [ref=e116] [cursor=pointer]: Compile
+                - button "" [ref=e118] [cursor=pointer]:
+                  - generic [ref=e119] [cursor=pointer]: 
+              - generic [ref=e120]:
+                - generic [ref=e121] [cursor=pointer]: 
+                - generic [ref=e122] [cursor=pointer]: 
+            - generic [ref=e123]:
+              - tablist [ref=e124]:
+                - tab "Home" [ref=e125]:
+                  - generic [ref=e126]:
+                    - img [ref=e127]
+                    - generic [ref=e128]: Home
+                - tab "Settings" [ref=e129]:
+                  - generic [ref=e130]:
+                    - img [ref=e131]
+                    - generic [ref=e132]: Settings
+                - tab " SimpleToken_brownie.py" [ref=e133]:
+                  - generic [ref=e134]:
+                    - generic [ref=e135]: 
+                    - generic [ref=e136]: SimpleToken_brownie.py
+                - tab " SimpleToken.sol " [selected] [ref=e137]:
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: 
+                    - generic [ref=e140]: SimpleToken.sol
+                    - generic [ref=e142] [cursor=pointer]: 
+              - tabpanel "Home"
+              - tabpanel "Settings"
+              - tabpanel " SimpleToken_brownie.py"
+              - tabpanel " SimpleToken.sol "
+          - code [ref=e149]:
+            - generic [ref=e150]:
+              - generic [ref=e153]:
+                - generic [ref=e155]: "62"
+                - generic [ref=e157]: "63"
+                - generic [ref=e159]: "64"
+                - generic [ref=e161]: "65"
+                - generic [ref=e163]: "66"
+                - generic [ref=e165]: "67"
+                - generic [ref=e167]: "68"
+                - generic [ref=e168]:
+                  - generic [ref=e169] [cursor=pointer]: 
+                  - generic [ref=e170]: "69"
+                - generic [ref=e172]: "70"
+                - generic [ref=e174]: "71"
+                - generic [ref=e176]: "72"
+                - generic [ref=e178]: "73"
+                - generic [ref=e180]: "74"
+                - generic [ref=e181]:
+                  - generic [ref=e182] [cursor=pointer]: 
+                  - generic [ref=e183]: "75"
+                - generic [ref=e185]: "76"
+                - generic [ref=e187]: "77"
+                - generic [ref=e189]: "78"
+                - generic [ref=e191]: "79"
+                - generic [ref=e193]: "80"
+                - generic [ref=e195]: "81"
+                - generic [ref=e197]: "82"
+                - generic [ref=e199]: "83"
+                - generic [ref=e201]: "84"
+                - generic [ref=e203]: "85"
+                - generic [ref=e205]: "86"
+                - generic [ref=e207]: "87"
+                - generic [ref=e210]: "88"
+              - generic [ref=e285]:
+                - generic [ref=e287]:
+                  - generic [ref=e288]: balanceOf
+                  - generic [ref=e289]: "["
+                  - generic [ref=e290]: msg
+                  - generic [ref=e291]: .
+                  - generic [ref=e292]: sender
+                  - generic [ref=e293]: "]"
+                  - generic [ref=e295]: "-="
+                  - generic [ref=e296]: _value
+                  - generic [ref=e297]: ;
+                - generic [ref=e299]:
+                  - generic [ref=e300]: balanceOf
+                  - generic [ref=e301]: "["
+                  - generic [ref=e302]: _to
+                  - generic [ref=e303]: "]"
+                  - generic [ref=e305]: +=
+                  - generic [ref=e306]: _value
+                  - generic [ref=e307]: ;
+                - generic [ref=e310]:
+                  - generic [ref=e312]: emit
+                  - generic [ref=e313]: Transfer
+                  - generic [ref=e314]: (
+                  - generic [ref=e315]: msg
+                  - generic [ref=e316]: .
+                  - generic [ref=e317]: sender
+                  - generic [ref=e318]: ","
+                  - generic [ref=e319]: _to
+                  - generic [ref=e320]: ","
+                  - generic [ref=e321]: _value
+                  - generic [ref=e322]: )
+                  - generic [ref=e323]: ;
+                - generic [ref=e325]:
+                  - generic [ref=e327]: return
+                  - generic [ref=e329]: "true"
+                  - generic [ref=e330]: ;
+                - generic [ref=e334]: "}"
+                - generic [ref=e337]:
+                  - generic [ref=e339]: function
+                  - generic [ref=e340]: approve
+                  - generic [ref=e341]: (
+                  - generic [ref=e342]: address
+                  - generic [ref=e343]: _spender
+                  - generic [ref=e344]: ","
+                  - generic [ref=e346]: uint256
+                  - generic [ref=e347]: _value
+                  - generic [ref=e348]: )
+                  - generic [ref=e350]: external
+                  - generic [ref=e352]: returns
+                  - generic [ref=e354]: (
+                  - generic [ref=e355]: bool
+                  - generic [ref=e356]: )
+                  - generic [ref=e358]: "{"
+                - generic [ref=e360]:
+                  - generic [ref=e361]: allowance
+                  - generic [ref=e362]: "["
+                  - generic [ref=e363]: msg
+                  - generic [ref=e364]: .
+                  - generic [ref=e365]: sender
+                  - generic [ref=e366]: "]"
+                  - generic [ref=e367]: "["
+                  - generic [ref=e368]: _spender
+                  - generic [ref=e369]: "]"
+                  - generic [ref=e371]: =
+                  - generic [ref=e372]: _value
+                  - generic [ref=e373]: ;
+                - generic [ref=e375]:
+                  - generic [ref=e377]: emit
+                  - generic [ref=e378]: Approval
+                  - generic [ref=e379]: (
+                  - generic [ref=e380]: msg
+                  - generic [ref=e381]: .
+                  - generic [ref=e382]: sender
+                  - generic [ref=e383]: ","
+                  - generic [ref=e384]: _spender
+                  - generic [ref=e385]: ","
+                  - generic [ref=e386]: _value
+                  - generic [ref=e387]: )
+                  - generic [ref=e388]: ;
+                - generic [ref=e390]:
+                  - generic [ref=e392]: return
+                  - generic [ref=e394]: "true"
+                  - generic [ref=e395]: ;
+                - generic [ref=e399]: "}"
+                - generic [ref=e402]:
+                  - generic [ref=e404]: function
+                  - generic [ref=e405]: transferFrom
+                  - generic [ref=e406]: (
+                  - generic [ref=e407]: address
+                  - generic [ref=e408]: _from
+                  - generic [ref=e409]: ","
+                  - generic [ref=e411]: address
+                  - generic [ref=e412]: _to
+                  - generic [ref=e413]: ","
+                  - generic [ref=e415]: uint256
+                  - generic [ref=e416]: _value
+                  - generic [ref=e417]: )
+                  - generic [ref=e419]: external
+                  - generic [ref=e421]: returns
+                  - generic [ref=e423]: (
+                  - generic [ref=e424]: bool
+                  - generic [ref=e425]: )
+                  - generic [ref=e427]: "{"
+                - generic [ref=e429]:
+                  - generic [ref=e431]: require
+                  - generic [ref=e432]: (
+                  - generic [ref=e433]: _from
+                  - generic [ref=e434]: "!="
+                  - generic [ref=e436]: address
+                  - generic [ref=e437]: (
+                  - generic [ref=e438]: "0"
+                  - generic [ref=e439]: )
+                  - generic [ref=e440]: ","
+                  - generic [ref=e442]: "\"Cannot transfer from zero address\""
+                  - generic [ref=e443]: )
+                  - generic [ref=e444]: ;
+                - generic [ref=e446]:
+                  - generic [ref=e448]: require
+                  - generic [ref=e449]: (
+                  - generic [ref=e450]: _to
+                  - generic [ref=e451]: "!="
+                  - generic [ref=e453]: address
+                  - generic [ref=e454]: (
+                  - generic [ref=e455]: "0"
+                  - generic [ref=e456]: )
+                  - generic [ref=e457]: ","
+                  - generic [ref=e459]: "\"Cannot transfer to zero address\""
+                  - generic [ref=e460]: )
+                  - generic [ref=e461]: ;
+                - generic [ref=e463]:
+                  - generic [ref=e465]: require
+                  - generic [ref=e466]: (
+                  - generic [ref=e467]: balanceOf
+                  - generic [ref=e468]: "["
+                  - generic [ref=e469]: _from
+                  - generic [ref=e470]: "]"
+                  - generic [ref=e472]: ">"
+                  - generic [ref=e473]: =
+                  - generic [ref=e474]: _value
+                  - generic [ref=e475]: ","
+                  - generic [ref=e477]: "\"Insufficient balance\""
+                  - generic [ref=e478]: )
+                  - generic [ref=e479]: ;
+                - generic [ref=e481]:
+                  - generic [ref=e483]: require
+                  - generic [ref=e484]: (
+                  - generic [ref=e485]: allowance
+                  - generic [ref=e486]: "["
+                  - generic [ref=e487]: _from
+                  - generic [ref=e488]: "]"
+                  - generic [ref=e489]: "["
+                  - generic [ref=e490]: msg
+                  - generic [ref=e491]: .
+                  - generic [ref=e492]: sender
+                  - generic [ref=e493]: "]"
+                  - generic [ref=e495]: ">"
+                  - generic [ref=e496]: =
+                  - generic [ref=e497]: _value
+                  - generic [ref=e498]: ","
+                  - generic [ref=e500]: "\"Insufficient allowance\""
+                  - generic [ref=e501]: )
+                  - generic [ref=e502]: ;
+                - generic [ref=e505]:
+                  - generic [ref=e506]: balanceOf
+                  - generic [ref=e507]: "["
+                  - generic [ref=e508]: _from
+                  - generic [ref=e509]: "]"
+                  - generic [ref=e511]: "-="
+                  - generic [ref=e512]: _value
+                  - generic [ref=e513]: ;
+                - generic [ref=e515]:
+                  - generic [ref=e516]: balanceOf
+                  - generic [ref=e517]: "["
+                  - generic [ref=e518]: _to
+                  - generic [ref=e519]: "]"
+                  - generic [ref=e521]: +=
+                  - generic [ref=e522]: _value
+                  - generic [ref=e523]: ;
+                - generic [ref=e525]:
+                  - generic [ref=e526]: allowance
+                  - generic [ref=e527]: "["
+                  - generic [ref=e528]: _from
+                  - generic [ref=e529]: "]"
+                  - generic [ref=e530]: "["
+                  - generic [ref=e531]: msg
+                  - generic [ref=e532]: .
+                  - generic [ref=e533]: sender
+                  - generic [ref=e534]: "]"
+                  - generic [ref=e536]: "-="
+                  - generic [ref=e537]: _value
+                  - generic [ref=e538]: ;
+                - generic [ref=e541]:
+                  - generic [ref=e543]: emit
+                  - generic [ref=e544]: Transfer
+                  - generic [ref=e545]: (
+                  - generic [ref=e546]: _from
+                  - generic [ref=e547]: ","
+                  - generic [ref=e548]: _to
+                  - generic [ref=e549]: ","
+                  - generic [ref=e550]: _value
+                  - generic [ref=e551]: )
+                  - generic [ref=e552]: ;
+                - generic [ref=e554]:
+                  - generic [ref=e556]: return
+                  - generic [ref=e558]: "true"
+                  - generic [ref=e559]: ;
+                - generic [ref=e563]: "}"
+                - generic [ref=e566]: "}"
+              - textbox "Editor content;Press Alt+F1 for Accessibility Options." [ref=e573]: "balanceOf[_from] -= _value; balanceOf[_to] += _value; allowance[_from][msg.sender] -= _value; emit Transfer(_from, _to, _value); return true; } }"
+          - text:  +                                   
+          - generic [ref=e576]:
+            - button "Remix AI Explain contract" [ref=e577] [cursor=pointer]:
+              - img "Remix AI" [ref=e578] [cursor=pointer]
+              - generic [ref=e579] [cursor=pointer]: Explain contract
+            - generic [ref=e580]:
+              - generic [ref=e581]: AI copilot
+              - generic [ref=e582]:
+                - checkbox [checked]
+          - generic [ref=e586]:
+            - generic [ref=e588]:
+              - generic [ref=e589] [cursor=pointer]: 
+              - generic [ref=e590]:
+                - generic [ref=e591]: "0"
+                - generic [ref=e592]:
+                  - checkbox "Listen on all transactions" [disabled]
+                  - generic [ref=e593]: Listen on all transactions
+                - generic [ref=e594]:
+                  - generic [ref=e595]: 
+                  - textbox "Filter with transaction hash or address" [ref=e596]
+                - generic [ref=e598] [cursor=pointer]: 
+            - generic [ref=e601]:
+              - generic [ref=e603]:
+                - generic [ref=e604]: Welcome to Remix 0.70.1
+                - generic [ref=e605]: Your files are stored in indexedDB, 1.46 KB / 863.65 MB used
+                - generic [ref=e606]: "You can use this terminal to:"
+                - list [ref=e607]:
+                  - listitem [ref=e608]: Check transactions details and start debugging.
+                  - listitem [ref=e609]:
+                    - text: "Execute JavaScript scripts:"
+                    - generic [ref=e610]: "- Input a script directly in the command line interface"
+                    - generic [ref=e611]: "- Select a Javascript file in the file explorer and then run `remix.execute()` or `remix.exeCurrent()` in the command line interface"
+                    - generic [ref=e612]: "- Right-click on a JavaScript file in the file explorer and then click `Run`"
+                - generic [ref=e613]: "The following libraries are accessible:"
+                - list [ref=e614]:
+                  - listitem [ref=e615]:
+                    - link "web3.js" [ref=e616] [cursor=pointer]:
+                      - /url: https://web3js.readthedocs.io/en/1.0/
+                  - listitem [ref=e617]:
+                    - link "ethers.js" [ref=e618] [cursor=pointer]:
+                      - /url: https://docs.ethers.io
+                - generic [ref=e619]: Type the library name to see available commands.
+              - generic [ref=e620]:
+                - generic [ref=e621]: ">"
+                - textbox [ref=e622]
+        - generic [ref=e624]:
+          - generic [ref=e625]:
+            - generic [ref=e626]:
+              - heading "RemixAI Assistant" [level=6] [ref=e627]
+              - generic [ref=e628]:
+                - generic [ref=e630]: 
+                - generic [ref=e632]: 
+                - generic [ref=e634]: 
+            - text:  
+          - generic [ref=e639]:
+            - generic [ref=e642]:
+              - img "RemixAI logo" [ref=e643]
+              - heading "RemixAI" [level=5] [ref=e644]
+              - paragraph [ref=e645]: RemixAI provides you personalized guidance as you build. It can break down concepts, answer questions about blockchain technology and assist you with your smart contracts.
+              - generic [ref=e646]:
+                - generic [ref=e647]:
+                  - generic [ref=e648]: "<prompt>:"
+                  - generic [ref=e649]: ask your question
+                - generic [ref=e650]:
+                  - generic [ref=e651]: "/w <prompt>:"
+                  - generic [ref=e652]: modify your code
+                - generic [ref=e653]:
+                  - generic [ref=e654]: "/c <prompt>:"
+                  - generic [ref=e655]: continue fixing compilation
+                - generic [ref=e656]:
+                  - generic [ref=e657]: "/g <prompt>:"
+                  - generic [ref=e658]: generate a new workspace
+              - generic [ref=e659]:
+                - button " What is a modifier?" [ref=e660] [cursor=pointer]:
+                  - generic [ref=e661] [cursor=pointer]: 
+                  - text: What is a modifier?
+                - button " What is a UniSwap hook?" [ref=e662] [cursor=pointer]:
+                  - generic [ref=e663] [cursor=pointer]: 
+                  - text: What is a UniSwap hook?
+                - button " What is a ZKP?" [ref=e664] [cursor=pointer]:
+                  - generic [ref=e665] [cursor=pointer]: 
+                  - text: What is a ZKP?
+            - generic [ref=e667]:
+              - generic [ref=e668]:
+                - button "@ Add Context" [ref=e669] [cursor=pointer]:
+                  - generic [ref=e670] [cursor=pointer]: "@ Add Context"
+                - generic [ref=e671]:
+                  - generic [ref=e672]: 
+                  - generic [ref=e673]: AI Beta
+              - generic [ref=e674]:
+                - textbox "Ask me anything, add workspace files..." [ref=e675]
+                - generic [ref=e676]:
+                  - button "MistralAI " [ref=e677] [cursor=pointer]:
+                    - text: MistralAI
+                    - generic [ref=e678] [cursor=pointer]: 
+                  - button "@Generate" [ref=e679] [cursor=pointer]
+      - generic [ref=e683]:
+        - generic [ref=e685]:
+          - generic [ref=e686]: 
+          - generic [ref=e687]: Scam Alert
+        - generic [ref=e691]: Initialize as git repo
+        - generic [ref=e693]:
+          - generic [ref=e694]: 
+          - generic [ref=e695]: Did you know?
+          - generic [ref=e696]: You can verify your contract using the Etherscan plugin.
+        - generic [ref=e700] [cursor=pointer]: RemixAI Copilot (enabled)
+    - text: 
+    - generic [ref=e701]:
+      - generic [ref=e703]:
+        - generic [ref=e704]: 
+        - generic [ref=e705]:
+          - text: muse
+          - generic [ref=e706]: is modifying
+          - text: MuSe/baseline/contracts/SimpleToken.sol
+      - button "" [ref=e708] [cursor=pointer]
+  - generic [ref=e709]:
+    - alert
+    - alert
+```

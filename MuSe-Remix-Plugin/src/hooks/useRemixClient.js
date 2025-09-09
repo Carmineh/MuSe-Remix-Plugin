@@ -136,8 +136,12 @@ export const useRemixClient = () => {
 				importDirectoryToRemix(client);
 
 				const data = await mutatorResponse.json();
-				updateConsole(`File saved successfully: ${data.message || "OK"}`);
-			} catch (error) {
+				if (data.output === 0)
+					updateConsole(
+						"No mutants generated. Please check if the selected mutators are compatible with the contract."
+					);
+				else updateConsole(`File saved successfully: ${data.message || "OK"}`);
+			 } catch (error) {
 				updateConsole(`Error during mutation execution: ${error.message}`);
 			}
 		},
@@ -175,6 +179,8 @@ export const useRemixClient = () => {
 					file.name.toLowerCase().includes(contractName.toLowerCase()) &&
 					file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
 			);
+			console.log(formattedTestFiles);
+			if (formattedTestFiles.length === 0) updateConsole("No test files found for the selected contract and framework");
 
 			try {
 				const response = await fetch(`${API_URL}/api/test`, {
@@ -201,6 +207,7 @@ export const useRemixClient = () => {
 	async function importDirectoryToRemix(remixPluginClient) {
 		try {
 			const response = await fetch(`${API_URL}/api/files-to-import`);
+
 			const files = await response.json();
 
 			for (const file of files) {

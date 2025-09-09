@@ -7,41 +7,110 @@ on:
     branches: [main]
 
 jobs:
-  build-test-deploy:
+ testing-jest:
+    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
-      - name:  Checkout repository (with submodules)
+      - name: Checkout repository (with submodules)
         uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name:  Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.19.0
 
-      - name:  Install dependencies (MuSe)
+      - name: Install dependencies (MuSe)
         run: npm install --prefix MuSe
 
-      - name:  Install dependencies (Plugin)
+      - name: Install dependencies (Plugin)
         run: npm install --prefix MuSe-Remix-Plugin
 
-      - name:  Run tests (TODO)
-        run: echo "Nessun test definito"
+      - name: Install dependencies (API)
+        run: npm install --prefix muse-api-service
 
-      - name:  Set up Docker Buildx
+      - name: install brownie
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install eth-brownie
+
+      - name: install ganache
+        run: |
+          npm install -g ganache
+
+      - name: Run tests (muse-api-service)
+        working-directory: muse-api-service
+        run: npm test
+
+      - name: Run tests (muse-remix-plugin)
+        working-directory: MuSe-Remix-Plugin
+        run: npm test
+
+
+
+ testing-e2e-deploy:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+
+      - name: Install dependencies (Plugin)
+        run: npm install --prefix MuSe-Remix-Plugin
+
+      - name: Set up Docker Buildx
+
         uses: docker/setup-buildx-action@v3
 
-      - name:  Log in to Docker Hub
+      - name: Log in to Docker Hub
+
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name:  Build and push Docker image
+      - name: Build Docker image
+        run: docker build -t muse-remix-plugin:${{ github.sha }} .
+
+      - name: Start docker image
+        run: |
+          docker run -d --rm -p 3001:3001 muse-remix-plugin:${{ github.sha }}
+          sleep 10  # Wait for the container to be fully up and running
+
+      - name: Run tests Playwright
+        working-directory: MuSe-Remix-Plugin
+        run: npm run pw-test
+
+      - name: Push Docker image (only on main)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
+
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
+      
+      
+
+      - name: Build and push Docker image
+       # if: github.ref == 'refs/heads/main'
+        if: false
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          cache-to: type=inline

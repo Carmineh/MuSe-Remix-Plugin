@@ -1,22 +1,56 @@
 {
-  "name": "remix-plugin-vite",
+  "name": "remix-muse-ui",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:both": "concurrently \"vite --host\" \"node ./server.js\""
+    "test": "jest --verbose",
+    "pw-test": "npx playwright install && npx playwright test --browser=chromium",
+    "start-api": "cd ../muse-api-service && npm start",
+    "test:playwright": "playwright test"
   },
-  "keywords": [],
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/tests/"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.cjs"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less|scss)$": "identity-obj-proxy"
+    },
+    "transform": {
+      "^.+\\.(js|jsx)$": [
+        "babel-jest"
+      ]
+    }
+  },
+  "keywords": [
+    "remix",
+    "plugin",
+    "muse",
+    "mutation",
+    "testing"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "@playwright/test": "^1.55.0",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@vitejs/plugin-react": "^4.7.0",
-    "concurrently": "^9.2.0",
-    "npm-run-all": "^4.1.5",
+    "babel-jest": "^30.1.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.1.1",
+    "jest-environment-jsdom": "^30.1.1",
+    "msw": "^2.11.0",
     "vite": "^7.0.5"
   },
   "dependencies": {
@@ -25,10 +59,6 @@
     "@remixproject/plugin-api": "^0.3.38",
     "@remixproject/plugin-iframe": "^0.3.38",
     "@remixproject/plugin-utils": "^0.3.38",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "fs": "^0.0.1-security",
-    "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-select": "^5.10.2"
