@@ -8,6 +8,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Mock del report generator
+jest.unstable_mockModule("../../MuSe-Remix-Plugin/src/utils/generate_report.js", () => ({
+    MuSeReportGenerator: jest.fn().mockImplementation(() => ({
+        generateReport: jest.fn(() => path.resolve(__dirname, "fake-report.txt")),
+    })),
+}));
 
 const { app } = await import("../../app.js");
 
