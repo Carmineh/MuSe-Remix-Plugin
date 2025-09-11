@@ -94,6 +94,7 @@ describe("POST /api/test", () => {
 			return report
 				.split("\n")
 				.filter((line) => !line.includes("seconds") && !line.includes("minutes"))
+				.map((line) => line.trimEnd())   // <-- elimina spazi finali per ogni riga
 				.join("\n")
 				.trim();
 		};
