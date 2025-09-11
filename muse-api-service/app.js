@@ -294,6 +294,10 @@ app.get("/api/files-to-import", (req, res) => {
 	}
 });
 
+app.get("/", (req, res) => {
+	res.status(200).send("Server is running");
+});
+
 app.get("/error-for-test", (req, res) => {
 	throw new Error("Test error");
 });
@@ -307,10 +311,6 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
 	console.error("Server error:", err);
 	res.status(500).json({ error: err.message || "Internal Server Error" });
-});
-
-app.get("/", (req, res) => {
-	res.status(200).send("Server is running");
 });
 
 export { app };

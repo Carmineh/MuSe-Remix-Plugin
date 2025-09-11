@@ -10,7 +10,7 @@ const { runSumoCommand } = await import("../../app.js");
 const { exec } = await import("child_process");
 
 describe("[runSumoCommand] Command execution with parameters", () => {
-	it("[TC-U_3.1] Esegue comando disable", async () => {
+	it("[TC-U_3.1] Execution of command disable", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("disable");
@@ -23,7 +23,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[TC-U_3.2] Esegue comando enable con parametri", async () => {
+	it("[TC-U_3.2] Execution of command enable with parameters", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("enable", ["BOR"]);
@@ -36,7 +36,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[TC-U_3.3] Esegue enable senza parametri (nessun operatore)", async () => {
+	it("[TC-U_3.3] Execution of command enable without parameters (no operators)", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "No operators to enable", ""));
 
 		const output = await runSumoCommand("enable");
@@ -49,7 +49,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[TC-U_3.4] Esegue comando mutate", async () => {
+	it("[TC-U_3.4] Execution of command  mutate", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("mutate");
@@ -62,7 +62,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[TC-U_3.5] Comando non riconosciuto restituisce errore", async () => {
+	it("[TC-U_3.5] Command not recognized [Error]", async () => {
 		await expect(runSumoCommand("unknown")).rejects.toEqual("NO COMMAND FOUND");
 	});
 });
