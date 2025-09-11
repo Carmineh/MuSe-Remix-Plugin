@@ -6,7 +6,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "cross-env NODE_OPTIONS=\" --experimental-vm-modules\" jest --coverage"
+    "test": "cross-env NODE_OPTIONS=\" --experimental-vm-modules\" jest --coverage --runInBand"
   },
   "keywords": [
     "muse",
