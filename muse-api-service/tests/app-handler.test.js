@@ -2,6 +2,11 @@ import request from "supertest";
 import { app } from "../app.js";
 
 describe("[Middleware] Error handling", () => {
+	it("should return 200 for /", async () => {
+		const res = await request(app).get("/");
+		expect(res.status).toBe(200);
+	});
+
 	it("should return 404 for unknown route", async () => {
 		const res = await request(app).get("/non-existent-route");
 		expect(res.status).toBe(404);

@@ -20,6 +20,7 @@ function MutationApp() {
     executeMutations,
     getTestFiles,
     executeTesting,
+    updateConsole,
     isLoading,
   } = useRemixClient();
 
@@ -83,6 +84,10 @@ function MutationApp() {
           />
           <ExecuteTestingButton
             onExecute={() => {
+              if (!selectedContract) {
+                updateConsole("Please select a contract first.");
+                return;
+              }
             setShowTestingConfig(true);
             console.log("setShowTestingConfig(true) chiamato");
           }}

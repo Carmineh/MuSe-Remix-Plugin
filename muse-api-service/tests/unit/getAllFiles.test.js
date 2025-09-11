@@ -17,17 +17,24 @@ const path = await import("path");
 describe("getAllFiles", () => {
 	beforeEach(() => jest.clearAllMocks());
 
-	it("[getAllFiles] Returns all files recursively", () => {
+	it("[TC-U_2.1] Returns all files recursively", () => {
 		fs.readdirSync.mockReturnValueOnce(["file1", "dir1"]).mockReturnValueOnce(["nested.txt"]);
 
 		fs.statSync
-			.mockReturnValueOnce({ isDirectory: () => false })
-			.mockReturnValueOnce({ isDirectory: () => true })
-			.mockReturnValueOnce({ isDirectory: () => false });
+			.mockReturnValueOnce({ isDirectory: () => false }) // file1
+			.mockReturnValueOnce({ isDirectory: () => true }) // dir1
+			.mockReturnValueOnce({ isDirectory: () => false }); // nested.txt
 
 		path.join.mockImplementation((...args) => args.join("/"));
 
 		const result = getAllFiles("/root");
+
 		expect(result).toEqual(["/root/file1", "/root/dir1/nested.txt"]);
+	});
+
+	it("[TC-U_2.2] Folder exists but contains no files", () => {
+		fs.readdirSync.mockReturnValue([]); 
+		const result = getAllFiles("/empty");
+		expect(result).toEqual([]);
 	});
 });

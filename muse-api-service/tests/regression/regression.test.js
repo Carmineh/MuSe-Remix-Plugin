@@ -8,13 +8,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Mock del report generator
-jest.unstable_mockModule("../../MuSe-Remix-Plugin/src/utils/generate_report.js", () => ({
+jest.unstable_mockModule("../../../MuSe-Remix-Plugin/src/utils/generate_report.js", () => ({
 	MuSeReportGenerator: jest.fn().mockImplementation(() => ({
 		generateReport: jest.fn(() => path.resolve(__dirname, "fake-report.txt")),
 	})),
 }));
 
-const { app } = await import("../app.js");
+const { app } = await import("../../app.js");
 
 // Percorsi principali dei test e dei contratti
 const MAIN_DIR = path.resolve("./tests/utils");
@@ -31,9 +31,6 @@ describe("POST /api/test", () => {
 		await fs.mkdir(CONTRACT_DIR, { recursive: true });
 		await fs.mkdir(TEST_DIR, { recursive: true });
 
-		const fakeReportPath = path.resolve("./tests/fake-report.txt");
-		await fs.writeFile(fakeReportPath, "contenuto fittizio del report", "utf8");
-		// Copia contratto
 		try {
 			await fs.copyFile(CONTRACT_FILE, path.join(CONTRACT_DIR, "Simple.sol"));
 		} catch (err) {
@@ -62,7 +59,7 @@ describe("POST /api/test", () => {
 		}
 	});
 
-	it("Sumo Mutation test of an example contract", async () => {
+	it("Sumo Mutation test golden file", async () => {
 		// Costruzione array di oggetti { name, content } per la richiesta
 		const testFilesNames = await fs.readdir(TEST_FILE_DIR);
 		const testFiles = [];
@@ -74,7 +71,7 @@ describe("POST /api/test", () => {
 		await request(app)
 			.post("/api/mutate")
 			.send({
-				mutators: [{ value: "VVR" }],
+				mutators: [{ value: "TX" }],
 			});
 
 		const res = await request(app)
@@ -84,8 +81,23 @@ describe("POST /api/test", () => {
 				testFiles,
 			});
 
-		expect(res.status).toBe(200);
-		expect(res.body.output).toBeDefined();
-		expect(res.body.report).toBeDefined();
+		// expect(res.status).toBe(200);
+		// expect(res.body.output).toBeDefined();
+
+		// Read and compare reports
+		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");
+
+		const expectedReport = await fs.readFile(path.resolve("./tests/utils/expected-sumo-log.txt"), "utf8");
+
+		// Funzione per rimuovere le righe con i tempi
+		const cleanReport = (report) => {
+			return report
+				.split("\n")
+				.filter((line) => !line.includes("seconds") && !line.includes("minutes"))
+				.map((line) => line.trimEnd())   // <-- elimina spazi finali per ogni riga
+				.join("\n")
+				.trim();
+		};
+		expect(cleanReport(generatedReport)).toBe(cleanReport(expectedReport));
 	}, 1000000); // timeout lungo
 });

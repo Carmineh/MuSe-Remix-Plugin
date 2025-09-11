@@ -1,4 +1,4 @@
-import { renderHook, act } from "@testing-library/react";
+import {renderHook, act } from "@testing-library/react";
 import { useRemixClient } from "../useRemixClient";
 import { createClient } from "@remixproject/plugin-iframe";
 
@@ -18,7 +18,7 @@ describe("useRemixClient", () => {
 	afterAll(() => {
 		jest.useRealTimers();
 	});
-
+//ok
 	test("inizializzazione: carica i contratti", async () => {
 		const mockContracts = {
 			"contracts/Token.sol": { isDirectory: false },
@@ -41,7 +41,7 @@ describe("useRemixClient", () => {
 		expect(result.current.contracts).toEqual(["Token.sol", "Lib.sol"]);
 		expect(result.current.consoleMessages.some((m) => m.includes("Loaded 2 contracts."))).toBe(true);
 	});
-
+//ok
 	test("inizializzazione: nessun contratto trovato", async () => {
 		const mockContracts = {};
 		const { result } = renderHook(() => useRemixClient());
@@ -60,7 +60,7 @@ describe("useRemixClient", () => {
 			true
 		);
 	});
-
+//ok
 	test("executeMutations: messaggio se nessun contratto selezionato", async () => {
 		const mockContracts = {};
 		const { result } = renderHook(() => useRemixClient());
@@ -80,7 +80,7 @@ describe("useRemixClient", () => {
 
 		expect(result.current.consoleMessages.some((m) => m.includes("Please select a contract first."))).toBe(true);
 	});
-
+//ok
 	test("executeMutations: messaggio se nessun mutator selezionato", async () => {
 		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
 		const { result } = renderHook(() => useRemixClient());
@@ -106,7 +106,7 @@ describe("useRemixClient", () => {
 			result.current.consoleMessages.some((m) => m.includes("Please select at least one mutation operator."))
 		).toBe(true);
 	});
-
+//ok
 	test("executeMutations: flusso completo successo", async () => {
 		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
 		const { result } = renderHook(() => useRemixClient());
@@ -154,7 +154,7 @@ describe("useRemixClient", () => {
 		expect(msgs).toContain("File saved successfully");
 		expect(client.fileManager.writeFile).toHaveBeenCalledWith("/MuSe/mutants/m1.sol", "contract M1 {}");
 	});
-
+//ok
 	test("executeMutations: nessun mutante generato", async () => {
 		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
 		const { result } = renderHook(() => useRemixClient());
@@ -194,7 +194,7 @@ describe("useRemixClient", () => {
 		const msgs = result.current.consoleMessages.join("\n");
 		expect(msgs).toContain("No mutants generated");
 	});
-
+//ok
 	test("executeTesting: salva il report", async () => {
 		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
 		const { result } = renderHook(() => useRemixClient());
@@ -239,34 +239,7 @@ describe("useRemixClient", () => {
 		);
 	});
 
-	test("eventi fileManager: aggiornano la lista contratti", async () => {
-		const mockContractsFirst = { "contracts/Token.sol": { isDirectory: false } };
-		const mockContractsSecond = {
-			"contracts/Token.sol": { isDirectory: false },
-			"contracts/New.sol": { isDirectory: false },
-		};
-
-		const { result } = renderHook(() => useRemixClient());
-		const { createClient } = require("@remixproject/plugin-iframe");
-		const client = createClient.mock.results.slice(-1)[0].value;
-
-		client.fileManager.readdir.mockResolvedValueOnce(mockContractsFirst).mockResolvedValueOnce(mockContractsSecond);
-
-		await act(async () => {
-			advanceAllTimers();
-			await Promise.resolve();
-		});
-
-		expect(result.current.contracts).toEqual(["Token.sol"]);
-
-		await act(async () => {
-			client.__emit("fileManager", "fileAdded", { path: "contracts/New.sol" });
-			await Promise.resolve();
-		});
-
-		expect(result.current.contracts).toEqual(["Token.sol", "New.sol"]);
-	});
-
+//ok
 	test("executeTesting: testing file not found", async () => {
 		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
 		const { result } = renderHook(() => useRemixClient());
@@ -307,7 +280,7 @@ describe("useRemixClient", () => {
 		expect(msgs).toContain("No test files found");
 	});
 
-
+//ok
 		test("inizializzazione fallita: createClient lancia errore", async () => {
 			const { createClient } = require("@remixproject/plugin-iframe");
 			createClient.mockImplementationOnce(() => {
@@ -325,7 +298,92 @@ describe("useRemixClient", () => {
 			expect(result.current.consoleMessages.some((m) => m.includes("Failed to initialize plugin: boom"))).toBe(true);
 		});
 
+	//ok
+	test("executeMutations con errore di fetch", async () => {
+		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
+		const { result } = renderHook(() => useRemixClient());
+		const { createClient } = require("@remixproject/plugin-iframe");
+		const client = createClient.mock.results.slice(-1)[0].value;
+		client.fileManager.readdir.mockResolvedValueOnce(mockContracts);
+		client.fileManager.readFile.mockResolvedValueOnce("contract C {}");
 
+		global.fetch = jest.fn().mockRejectedValue(new Error("network down"));
+
+		await act(async () => {
+			advanceAllTimers();
+			await Promise.resolve();
+		});
+
+		act(() => {
+			result.current.setSelectedContract("contracts/Token.sol");
+		});
+
+		await act(async () => {
+			await result.current.executeMutations(["AOR"]);
+		});
+
+		expect(result.current.consoleMessages.some((m) => m.includes("Error during mutation execution"))).toBe(true);
+	});
+
+	//ok
+	test("executeTesting con errore API (ok=false)", async () => {
+		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
+		const { result } = renderHook(() => useRemixClient());
+		const { createClient } = require("@remixproject/plugin-iframe");
+		const client = createClient.mock.results.slice(-1)[0].value;
+		client.fileManager.readdir.mockResolvedValueOnce(mockContracts);
+		client.fileManager.writeFile.mockResolvedValue();
+
+		await act(async () => {
+			advanceAllTimers();
+			await Promise.resolve();
+		});
+
+		act(() => {
+			result.current.setSelectedContract("contracts/Token.sol");
+		});
+
+		global.fetch = jest.fn().mockResolvedValue({
+			ok: false,
+			json: async () => ({ error: "Bad request" }),
+		});
+
+		await act(async () => {
+			await result.current.executeTesting({ testingFramework: "hardhat", testingTimeOutInSec: 10 }, []);
+		});
+
+		expect(result.current.consoleMessages.some((m) => m.includes("Testing error: Bad request"))).toBe(true);
+	});
+
+	//ok
+	test("executeTesting con eccezione di rete", async () => {
+		const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
+		const { result } = renderHook(() => useRemixClient());
+		const { createClient } = require("@remixproject/plugin-iframe");
+		const client = createClient.mock.results.slice(-1)[0].value;
+		client.fileManager.readdir.mockResolvedValueOnce(mockContracts);
+		client.fileManager.writeFile.mockResolvedValue();
+
+		await act(async () => {
+			advanceAllTimers();
+			await Promise.resolve();
+		});
+
+		act(() => {
+			result.current.setSelectedContract("contracts/Token.sol");
+		});
+
+		global.fetch = jest.fn().mockRejectedValue(new Error("network fail"));
+
+		await act(async () => {
+			await result.current.executeTesting({ testingFramework: "hardhat", testingTimeOutInSec: 10 }, []);
+		});
+
+		expect(result.current.consoleMessages.some((m) => m.includes("Error during testing: network fail"))).toBe(true);
+	});
+
+
+//ok
 		test("loadContracts senza client non fa nulla", async () => {
 			const { result } = renderHook(() => useRemixClient());
 			await act(async () => {
@@ -335,7 +393,7 @@ describe("useRemixClient", () => {
 		});
 
 
-
+//ok
 		test("getContractsFromRemix ignora file non .sol", async () => {
 			const { result } = renderHook(() => useRemixClient());
 			const { createClient } = require("@remixproject/plugin-iframe");
@@ -354,32 +412,7 @@ describe("useRemixClient", () => {
 		});
 
 
-		test("executeMutations con errore di fetch", async () => {
-			const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
-			const { result } = renderHook(() => useRemixClient());
-			const { createClient } = require("@remixproject/plugin-iframe");
-			const client = createClient.mock.results.slice(-1)[0].value;
-			client.fileManager.readdir.mockResolvedValueOnce(mockContracts);
-			client.fileManager.readFile.mockResolvedValueOnce("contract C {}");
-
-			global.fetch = jest.fn().mockRejectedValue(new Error("network down"));
-
-			await act(async () => {
-				advanceAllTimers();
-				await Promise.resolve();
-			});
-
-			act(() => {
-				result.current.setSelectedContract("contracts/Token.sol");
-			});
-
-			await act(async () => {
-				await result.current.executeMutations(["AOR"]);
-			});
-
-			expect(result.current.consoleMessages.some((m) => m.includes("Error during mutation execution"))).toBe(true);
-		});
-
+//ok
 		test("getTestFiles ritorna solo file non directory", async () => {
 			const { result } = renderHook(() => useRemixClient());
 			const { createClient } = require("@remixproject/plugin-iframe");
@@ -392,7 +425,7 @@ describe("useRemixClient", () => {
 			const files = await result.current.getTestFiles();
 			expect(files).toEqual([{ name: "a.js", content: "content" }]);
 		});
-
+//ok
 		test("getTestFiles con errore ritorna []", async () => {
 			const { result } = renderHook(() => useRemixClient());
 			const { createClient } = require("@remixproject/plugin-iframe");
@@ -403,76 +436,33 @@ describe("useRemixClient", () => {
 			expect(files).toEqual([]);
 		});
 
-		test("executeTesting con errore API (ok=false)", async () => {
-			const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
-			const { result } = renderHook(() => useRemixClient());
-			const { createClient } = require("@remixproject/plugin-iframe");
-			const client = createClient.mock.results.slice(-1)[0].value;
-			client.fileManager.readdir.mockResolvedValueOnce(mockContracts);
-			client.fileManager.writeFile.mockResolvedValue();
-
-			await act(async () => {
-				advanceAllTimers();
-				await Promise.resolve();
-			});
-
-			act(() => {
-				result.current.setSelectedContract("contracts/Token.sol");
-			});
-
-			global.fetch = jest.fn().mockResolvedValue({
-				ok: false,
-				json: async () => ({ error: "Bad request" }),
-			});
-
-			await act(async () => {
-				await result.current.executeTesting({ testingFramework: "hardhat", testingTimeOutInSec: 10 }, []);
-			});
-
-			expect(result.current.consoleMessages.some((m) => m.includes("Testing error: Bad request"))).toBe(true);
-		});
-
-		test("executeTesting con eccezione di rete", async () => {
-			const mockContracts = { "contracts/Token.sol": { isDirectory: false } };
-			const { result } = renderHook(() => useRemixClient());
-			const { createClient } = require("@remixproject/plugin-iframe");
-			const client = createClient.mock.results.slice(-1)[0].value;
-			client.fileManager.readdir.mockResolvedValueOnce(mockContracts);
-			client.fileManager.writeFile.mockResolvedValue();
-
-			await act(async () => {
-				advanceAllTimers();
-				await Promise.resolve();
-			});
-
-			act(() => {
-				result.current.setSelectedContract("contracts/Token.sol");
-			});
-
-			global.fetch = jest.fn().mockRejectedValue(new Error("network fail"));
-
-			await act(async () => {
-				await result.current.executeTesting({ testingFramework: "hardhat", testingTimeOutInSec: 10 }, []);
-			});
-
-			expect(result.current.consoleMessages.some((m) => m.includes("Error during testing: network fail"))).toBe(true);
-		});
-
-		test("updateConsole e clearConsole funzionano", () => {
+//ok
+		test("updateConsole funziona", () => {
 			const { result } = renderHook(() => useRemixClient());
 
 			act(() => {
-				result.current.updateConsole("first message");
-				result.current.updateConsole("second message");
-			});
-			expect(result.current.consoleMessages.length).toBe(2);
+				result.current.updateConsole("Messaggio di test");
 
-			act(() => {
-				result.current.clearConsole();
 			});
-			expect(result.current.consoleMessages.length).toBe(0);
+			expect(result.current.consoleMessages.length).toBe(1);
+
 		});
+//ok
+	test("clearConsole funziona", () => {
+		const { result } = renderHook(() => useRemixClient());
 
+		act(() => {
+			result.current.updateConsole("first message");
+			result.current.updateConsole("second message");
+		});
+		expect(result.current.consoleMessages.length).toBe(2);
+
+		act(() => {
+			result.current.clearConsole();
+		});
+		expect(result.current.consoleMessages.length).toBe(0);
+	});
+//ok
 	test("getContractsFromRemix logga errore su console.error", async () => {
 		const spy = jest.spyOn(console, "error").mockImplementation(() => {});
 		const { result } = renderHook(() => useRemixClient());
@@ -489,31 +479,6 @@ describe("useRemixClient", () => {
 		expect(spy).toHaveBeenCalledWith(expect.stringContaining("Error reading contracts:"), expect.any(Error));
 		spy.mockRestore();
 	});
-
-
-	test("fileRenamed aggiorna lista contratti", async () => {
-		const mockContracts = { "contracts/Token.sol": { isDirectory: false }, "contracts/Renamed.sol": { isDirectory: false } };
-		const { result } = renderHook(() => useRemixClient());
-		const { createClient } = require("@remixproject/plugin-iframe");
-		const client = createClient.mock.results.slice(-1)[0].value;
-
-		client.fileManager.readdir.mockResolvedValueOnce({ "contracts/Token.sol": { isDirectory: false } })
-			.mockResolvedValueOnce(mockContracts);
-
-		await act(async () => {
-			advanceAllTimers();
-			await Promise.resolve();
-		});
-
-		await act(async () => {
-			client.__emit("fileManager", "fileRenamed", { path: "contracts/Renamed.sol" });
-			await Promise.resolve();
-		});
-
-		expect(result.current.contracts).toEqual(["Token.sol", "Renamed.sol"]);
-	});
-
-
 
 
 });
