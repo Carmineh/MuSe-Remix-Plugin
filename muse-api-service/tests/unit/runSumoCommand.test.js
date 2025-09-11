@@ -1,4 +1,3 @@
-// tests/unit/runSumoCommand.test.js
 import { jest } from "@jest/globals";
 
 // 1. Mock del modulo PRIMA di importare ciò che lo usa
@@ -11,7 +10,7 @@ const { runSumoCommand } = await import("../../app.js");
 const { exec } = await import("child_process");
 
 describe("[runSumoCommand] Command execution with parameters", () => {
-	it("[runSumoCommand] Executes disable command", async () => {
+	it("[TC-U_3.1] Esegue comando disable", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("disable");
@@ -24,7 +23,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[runSumoCommand] Executes enable command", async () => {
+	it("[TC-U_3.2] Esegue comando enable con parametri", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("enable", ["BOR"]);
@@ -37,7 +36,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[runSumoCommand] Executes enable without operators", async () => {
+	it("[TC-U_3.3] Esegue enable senza parametri (nessun operatore)", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "No operators to enable", ""));
 
 		const output = await runSumoCommand("enable");
@@ -50,7 +49,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[runSumoCommand] Executes mutate command", async () => {
+	it("[TC-U_3.4] Esegue comando mutate", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("mutate");
@@ -63,9 +62,7 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 		);
 	});
 
-	it("[runSumoCommand] Handles execution error", async () => {
-		exec.mockImplementation((cmd, opts, cb) => cb(new Error("fail"), null, ""));
-
-		await expect(runSumoCommand("disable")).rejects.toEqual("fail");
+	it("[TC-U_3.5] Comando non riconosciuto restituisce errore", async () => {
+		await expect(runSumoCommand("unknown")).rejects.toEqual("NO COMMAND FOUND");
 	});
 });
