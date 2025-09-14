@@ -3,8 +3,14 @@ name: DockerHub Deploy
 on:
   push:
     branches: ["**"]
+    paths:
+      - "MuSe-Remix-Plugin/**"
+      - "muse-api-service/**"
   pull_request:
     branches: [main]
+    paths:
+      - "MuSe-Remix-Plugin/**"
+      - "muse-api-service/**"
 
 jobs:
   testing-jest:

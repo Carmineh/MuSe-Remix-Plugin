@@ -3,6 +3,8 @@ name: GitHub Pages Deploy
 on:
   push:
     branches: ["**"]
+    paths:
+      - "MuSe-Remix-Plugin/**"
 
 permissions:
   contents: read
