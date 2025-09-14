@@ -85,7 +85,7 @@ describe("POST /api/test", () => {
 		// expect(res.body.output).toBeDefined();
 
 		// Read and compare reports
-		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");z
+		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");
 
 		const expectedReport = await fs.readFile(path.resolve("./tests/utils/expected-sumo-log.txt"), "utf8");
 
@@ -94,7 +94,7 @@ describe("POST /api/test", () => {
 			return report
 				.split("\n")
 				.filter((line) => !line.includes("seconds") && !line.includes("minutes"))
-				.map((line) => line.trimEnd())   // <-- elimina spazi finali per ogni riga
+				.map((line) => line.trimEnd()) // <-- elimina spazi finali per ogni riga
 				.join("\n")
 				.trim();
 		};
