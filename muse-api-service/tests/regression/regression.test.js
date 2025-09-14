@@ -85,7 +85,7 @@ describe("POST /api/test", () => {
 		// expect(res.body.output).toBeDefined();
 
 		// Read and compare reports
-		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");
+		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");z
 
 		const expectedReport = await fs.readFile(path.resolve("./tests/utils/expected-sumo-log.txt"), "utf8");
 

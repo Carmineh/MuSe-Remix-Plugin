@@ -2,6 +2,12 @@
 <img src="MuSe-Remix-Plugin/public/logo.png" alt="MuSe logo" style="width:25%;"/>
 </p>
 
+![License](https://img.shields.io/github/license/Carmineh/MuSe-Remix-Plugin)
+[![Deploy app to GitHub Pages](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/pages.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/pages.yml)
+[![CI/CD Pipeline](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml)
+![Docker Image Version](https://img.shields.io/docker/v/danielecarangelo/muse-remix-plugin)
+
+
 # MuSe - MUtation SEeding tool Plugin for Remix IDE
 **[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie and Forge, hybrid test suites, and custom test scripts.
 
@@ -42,9 +48,15 @@ cd MuSe-Remix-Plugin
 # Install dependencies for MuSe
 cd MuSe
 npm install
+# For the Framework installation make sure to check MuSe and SuMo repositories 
+# Framework are mandatory to run tests
 
 # Install dependencies for the plugin
 cd ../MuSe-Remix-Plugin
+npm install
+
+# Install dependencies for API Service
+cd ../muse-api-service
 npm install
 
 # Start the server inside MuSe-Remix-Plugin

@@ -1,13 +1,13 @@
-name: CI/CD Pipeline
+name: DockerHub Deploy
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
     branches: [main]
 
 jobs:
- testing-jest:
+  testing-jest:
     name: Run Tests
     runs-on: ubuntu-latest
 
@@ -48,9 +48,7 @@ jobs:
         working-directory: MuSe-Remix-Plugin
         run: npm test
 
-
-
- testing-e2e-deploy:
+  testing-e2e-deploy:
     name: Run Tests
     runs-on: ubuntu-latest
 
@@ -68,23 +66,24 @@ jobs:
       - name: Install dependencies (Plugin)
         run: npm install --prefix MuSe-Remix-Plugin
 
-      - name: Set up Docker Buildx
+      - name: Compute short SHA (7 chars)
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Docker Hub
-
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t muse-remix-plugin:${{ github.sha }} .
+        run: docker build -t muse-remix-plugin:$SHORT_SHA .
 
       - name: Start docker image
         run: |
-          docker run -d --rm -p 3001:3001 muse-remix-plugin:${{ github.sha }}
+          docker run -d --rm -p 3001:3001 muse-remix-plugin:$SHORT_SHA
           sleep 10  # Wait for the container to be fully up and running
 
       - name: Run tests Playwright
@@ -94,16 +93,13 @@ jobs:
       - name: Push Docker image (only on main)
         if: github.ref == 'refs/heads/main'
         run: |
-          docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
-          docker tag muse-remix-plugin:${{ github.sha }} ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
+          docker tag muse-remix-plugin:$SHORT_SHA ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
+          docker tag muse-remix-plugin:$SHORT_SHA ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:$SHORT_SHA
 
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
-      
-      
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:$SHORT_SHA
 
       - name: Build and push Docker image
-       # if: github.ref == 'refs/heads/main'
         if: false
         uses: docker/build-push-action@v5
         with:
@@ -111,6 +107,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:${{ env.SHORT_SHA }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/muse-remix-plugin:latest
           cache-to: type=inline
