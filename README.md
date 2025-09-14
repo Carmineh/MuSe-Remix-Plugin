@@ -2,10 +2,10 @@
 <img src="MuSe-Remix-Plugin/public/logo.png" alt="MuSe logo" style="width:25%;"/>
 </p>
 
-![License](https://img.shields.io/github/license/Carmineh/MuSe-Remix-Plugin)
+[![License](https://img.shields.io/github/license/Carmineh/MuSe-Remix-Plugin)](https://github.com/Carmineh/MuSe-Remix-Plugin?tab=GPL-3.0-1-ov-file)
 [![Deploy app to GitHub Pages](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/pages.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/pages.yml)
 [![CI/CD Pipeline](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml)
-![Docker Image Version](https://img.shields.io/docker/v/danielecarangelo/muse-remix-plugin)
+[![Docker Image Version](https://img.shields.io/docker/v/danielecarangelo/muse-remix-plugin)](https://hub.docker.com/r/danielecarangelo/muse-remix-plugin/tags)
 
 
 # MuSe - MUtation SEeding tool Plugin for Remix IDE
