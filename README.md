@@ -59,7 +59,7 @@ npm install
 cd ../muse-api-service
 npm install
 
-# Start the server inside MuSe-Remix-Plugin
+# Start the server inside muse-api-service
 node server.js
 ```
 
