@@ -10,7 +10,7 @@
 
 
 # MuSe - MUtation SEeding tool Plugin for Remix IDE
-**[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie and Forge, hybrid test suites, and custom test scripts.
+**[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie, Truffle and Forge, hybrid test suites, and custom test scripts.
 
 ## Table of Contents
 
