@@ -1,3 +1,4 @@
+
 <p align="center">
 <img src="MuSe-Remix-Plugin/public/logo.png" alt="MuSe logo" style="width:25%;"/>
 </p>
@@ -114,8 +115,8 @@ The MuSe Plugin UI includes:
 
    <p align="center">
 
-    <img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
-    <img width="702" height="573" alt="Screenshot 2025-09-02 151214" src="https://github.com/user-attachments/assets/d80e19b5-b848-40be-b920-0af6e38969be" />
+    <img width="550" height="856" alt="Screenshot 2025-08-22 192741" src="https://github.com/user-attachments/assets/bd87f5ad-d3f9-4cc7-ada7-fdc2c78bf44f" />
+    <img width="550" height="573" alt="Screenshot 2025-09-02 151214" src="https://github.com/user-attachments/assets/d80e19b5-b848-40be-b920-0af6e38969be" />
 
    </p>
    
