@@ -147,7 +147,7 @@ export function createFolders(dirs) {
 		}
 	}
 }
-export function clearDirectories(dirs) {
+export function clearFolders(dirs) {
 	for (const dir of dirs) {
 		if (fs.existsSync(dir)) {
 			const files = fs.readdirSync(dir);
@@ -164,7 +164,7 @@ app.post("/api/save", (req, res) => {
 	const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
 
 	createFolders(dirs);
-
+	// clearFolders(dirs);
 	const contractsDir = PATHS.MUSE.CONTRACTS_DIR;
 	if (fs.existsSync(contractsDir)) {
 		const files = fs.readdirSync(contractsDir);
@@ -199,7 +199,10 @@ app.post("/api/mutate", async (req, res) => {
 	try {
 		const mutators = req.body.mutators.map((m) => m.value);
 		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+
+		const dirs_to_clear = [PATHS.MUSE.BUILD_DIR, path.join(PATHS.MUSE.SUMO_DIR)];
 		createFolders(dirs);
+		clearFolders(dirs_to_clear);
 
 		await runSumoCommand("disable");
 		await runSumoCommand("enable", mutators);
@@ -226,7 +229,7 @@ app.post("/api/test", async (req, res) => {
 
 		createFolders(dirs);
 
-		clearDirectories([PATHS.MUSE.TESTS_DIR]);
+		clearFolders([PATHS.MUSE.TESTS_DIR]);
 
 		const { testingConfig, testFiles } = req.body;
 
