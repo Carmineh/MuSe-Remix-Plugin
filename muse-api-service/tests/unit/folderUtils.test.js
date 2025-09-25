@@ -14,7 +14,7 @@ jest.unstable_mockModule("path", () => ({
 }));
 
 // 2. Importiamo dopo aver mockato
-const { createFolders, clearDirectories } = await import("../../app.js");
+const { createFolders, clearFolders } = await import("../../app.js");
 const fs = await import("fs");
 const path = await import("path");
 
@@ -42,7 +42,7 @@ describe("createFolders", () => {
 	});
 });
 
-describe("clearDirectories", () => {
+describe("clearFolders", () => {
 	beforeEach(() => jest.clearAllMocks());
 
 	it("clears all files in existing directories", () => {
@@ -50,7 +50,7 @@ describe("clearDirectories", () => {
 		fs.readdirSync.mockReturnValue(["file1.txt", "file2.txt"]);
 
 		const dirs = ["/dir1"];
-		clearDirectories(dirs);
+		clearFolders(dirs);
 
 		expect(fs.readdirSync).toHaveBeenCalledWith("/dir1");
 		expect(fs.rmSync).toHaveBeenCalledTimes(2);
@@ -62,7 +62,7 @@ describe("clearDirectories", () => {
 		fs.existsSync.mockReturnValue(false);
 
 		const dirs = ["/dir1"];
-		clearDirectories(dirs);
+		clearFolders(dirs);
 
 		expect(fs.readdirSync).not.toHaveBeenCalled();
 		expect(fs.rmSync).not.toHaveBeenCalled();
