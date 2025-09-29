@@ -1,5 +1,5 @@
 import request from "supertest";
-import { jest, beforeAll, beforeEach, afterAll } from "@jest/globals";
+import { jest, beforeAll, afterAll, describe, it, expect } from "@jest/globals";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Mock del report generator
+// Mock del report generator (opzionale per questo test, ma innocuo)
 jest.unstable_mockModule("../../../MuSe-Remix-Plugin/src/utils/generate_report.js", () => ({
 	MuSeReportGenerator: jest.fn().mockImplementation(() => ({
 		generateReport: jest.fn(() => path.resolve(__dirname, "fake-report.txt")),
@@ -23,22 +23,20 @@ const TEST_FILE_DIR = path.join(MAIN_DIR, "tests");
 const CONTRACT_DIR = path.resolve("../MuSe/contracts"); // destinazione contratti
 const TEST_DIR = path.resolve("../MuSe/test"); // destinazione test files
 
-describe("POST /api/test", () => {
-	// Pulizia e preparazione cartelle prima di tutti i test
+describe("POST /api/test (golden file, NDJSON)", () => {
 	beforeAll(async () => {
 		jest.clearAllMocks();
 
 		await fs.mkdir(CONTRACT_DIR, { recursive: true });
 		await fs.mkdir(TEST_DIR, { recursive: true });
 
-		try {
-			await fs.copyFile(CONTRACT_FILE, path.join(CONTRACT_DIR, "Simple.sol"));
-		} catch (err) {
+		// copia contratto
+		await fs.copyFile(CONTRACT_FILE, path.join(CONTRACT_DIR, "Simple.sol")).catch((err) => {
 			console.error("Contratto mancante:", CONTRACT_FILE);
 			throw err;
-		}
+		});
 
-		// Copia file di test
+		// copia files di test “seed” (non strettamente necessario ma coerente col setup)
 		try {
 			const testFilesNames = await fs.readdir(TEST_FILE_DIR);
 			for (const f of testFilesNames) {
@@ -48,19 +46,18 @@ describe("POST /api/test", () => {
 		} catch (err) {
 			console.error("Errore nella copia dei test files:", err);
 		}
+
+		// crea un fake report per il mock (se usato)
+		const fakeReportPath = path.resolve(__dirname, "fake-report.txt");
+		await fs.writeFile(fakeReportPath, "contenuto fittizio del report", "utf8");
 	});
 
-	// Pulizia dopo tutti i test
 	afterAll(async () => {
-		try {
-			//await fs.unlink(path.join(CONTRACT_DIR, "Simple.sol"));
-		} catch (err) {
-			console.error("Errore pulizia cartelle di test:", err);
-		}
+		// eventuale cleanup se necessario
 	});
 
 	it("Sumo Mutation test golden file", async () => {
-		// Costruzione array di oggetti { name, content } per la richiesta
+		// prepara i file di test da mandare nel body
 		const testFilesNames = await fs.readdir(TEST_FILE_DIR);
 		const testFiles = [];
 		for (const f of testFilesNames) {
@@ -68,36 +65,64 @@ describe("POST /api/test", () => {
 			testFiles.push({ name: f, content });
 		}
 
+		// 1) abilita mutator e genera mutanti (API JSON)
 		await request(app)
 			.post("/api/mutate")
-			.send({
-				mutators: [{ value: "TX" }],
+			.send({ mutators: [{ value: "TX" }] })
+			.expect(200);
+
+		// 2) avvia /api/test e leggi TUTTO lo stream NDJSON (accumulo + parse)
+		const ndjsonText = await new Promise((resolve, reject) => {
+			request(app)
+				.post("/api/test")
+				.send({
+					testingConfig: { testingFramework: "brownie", testingTimeOutInSec: 300 },
+					testFiles,
+				})
+				.buffer(true)
+				.parse((res, cb) => {
+					res.setEncoding("utf8");
+					let data = "";
+					res.on("data", (chunk) => (data += chunk));
+					res.on("end", () => cb(null, data));
+					res.on("error", (err) => cb(err));
+				})
+				.end((err, res) => {
+					if (err) return reject(err);
+					if (res.status !== 200) return reject(new Error(`Unexpected status: ${res.status} - ${res.text}`));
+					resolve(res.text); // tutto lo stream NDJSON come stringa
+				});
+		});
+
+		// parse NDJSON → array eventi
+		const events = ndjsonText
+			.split("\n")
+			.map((l) => l.trim())
+			.filter(Boolean)
+			.map((l) => {
+				try {
+					return JSON.parse(l);
+				} catch {
+					return { type: "raw", line: l };
+				}
 			});
 
-		const res = await request(app)
-			.post("/api/test")
-			.send({
-				testingConfig: { testingFramework: "brownie", testingTimeOutInSec: 300 },
-				testFiles,
-			});
+		// deve esserci un "done" (stream terminato)
+		const doneEvt = events.find((e) => e.type === "done");
+		expect(doneEvt).toBeDefined();
 
-		// expect(res.status).toBe(200);
-		// expect(res.body.output).toBeDefined();
-
-		// Read and compare reports
+		// 3) confronta il golden file (sumo-log.txt) con l’expected
 		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");
-
 		const expectedReport = await fs.readFile(path.resolve("./tests/utils/expected-sumo-log.txt"), "utf8");
 
-		// Funzione per rimuovere le righe con i tempi
-		const cleanReport = (report) => {
-			return report
+		const cleanReport = (report) =>
+			report
 				.split("\n")
 				.filter((line) => !line.includes("seconds") && !line.includes("minutes"))
-				.map((line) => line.trimEnd()) // <-- elimina spazi finali per ogni riga
+				.map((line) => line.trimEnd())
 				.join("\n")
 				.trim();
-		};
+
 		expect(cleanReport(generatedReport)).toBe(cleanReport(expectedReport));
 	}, 1000000); // timeout lungo
 });
