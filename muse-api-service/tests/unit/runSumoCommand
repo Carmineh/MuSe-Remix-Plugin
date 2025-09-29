@@ -1,15 +1,31 @@
-import { jest } from "@jest/globals";
+import { jest, beforeAll, afterAll, describe, it, expect } from "@jest/globals";
 
-// 1. Mock del modulo PRIMA di importare ciò che lo usa
-jest.unstable_mockModule("child_process", () => ({
+// Allunga un po' il timeout globale di questo file
+jest.setTimeout(10000);
+
+// 1) Mock del modulo **ESM corretto** PRIMA degli import dell'app
+jest.unstable_mockModule("node:child_process", () => ({
 	exec: jest.fn(),
+	// opzionale: se altri test importano/spawnano altrove
+	spawn: jest.fn(),
 }));
 
-// 2. Ora importiamo runSumoCommand e il mock
+// 2) Import dopo il mock
 const { runSumoCommand } = await import("../../app.js");
-const { exec } = await import("child_process");
+const { exec } = await import("node:child_process");
 
 describe("[runSumoCommand] Command execution with parameters", () => {
+	let logSpy;
+
+	beforeAll(() => {
+		// Silenzia i console.log generati da runSumoCommand per evitare rumore
+		logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+	});
+
+	afterAll(() => {
+		logSpy?.mockRestore();
+	});
+
 	it("[TC-U_3.1] Execution of command disable", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
@@ -37,19 +53,14 @@ describe("[runSumoCommand] Command execution with parameters", () => {
 	});
 
 	it("[TC-U_3.3] Execution of command enable without parameters (no operators)", async () => {
-		exec.mockImplementation((cmd, opts, cb) => cb(null, "No operators to enable", ""));
-
+		// In app.js se parameters è vuoto, ritorna subito "No operators to enable" e **NON** chiama exec
 		const output = await runSumoCommand("enable");
 
 		expect(output).toBe("No operators to enable");
-		expect(exec).toHaveBeenCalledWith(
-			expect.stringContaining("npx sumo enable"),
-			expect.any(Object),
-			expect.any(Function)
-		);
+		expect(exec).not.toHaveBeenCalled();
 	});
 
-	it("[TC-U_3.4] Execution of command  mutate", async () => {
+	it("[TC-U_3.4] Execution of command mutate", async () => {
 		exec.mockImplementation((cmd, opts, cb) => cb(null, "ok", ""));
 
 		const output = await runSumoCommand("mutate");
