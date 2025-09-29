@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Mock del report generator (opzionale per questo test, ma innocuo)
+// Mock del report generator (non indispensabile qui, ma innocuo)
 jest.unstable_mockModule("../../../MuSe-Remix-Plugin/src/utils/generate_report.js", () => ({
 	MuSeReportGenerator: jest.fn().mockImplementation(() => ({
 		generateReport: jest.fn(() => path.resolve(__dirname, "fake-report.txt")),
@@ -36,7 +36,7 @@ describe("POST /api/test (golden file, NDJSON)", () => {
 			throw err;
 		});
 
-		// copia files di test “seed” (non strettamente necessario ma coerente col setup)
+		// semina i test file (non strettamente necessario perché li inviamo nel body, ma coerente)
 		try {
 			const testFilesNames = await fs.readdir(TEST_FILE_DIR);
 			for (const f of testFilesNames) {
@@ -47,17 +47,17 @@ describe("POST /api/test (golden file, NDJSON)", () => {
 			console.error("Errore nella copia dei test files:", err);
 		}
 
-		// crea un fake report per il mock (se usato)
+		// fake report per il mock (se mai usato)
 		const fakeReportPath = path.resolve(__dirname, "fake-report.txt");
 		await fs.writeFile(fakeReportPath, "contenuto fittizio del report", "utf8");
 	});
 
 	afterAll(async () => {
-		// eventuale cleanup se necessario
+		// eventuale cleanup
 	});
 
 	it("Sumo Mutation test golden file", async () => {
-		// prepara i file di test da mandare nel body
+		// Prepara i test file da inviare
 		const testFilesNames = await fs.readdir(TEST_FILE_DIR);
 		const testFiles = [];
 		for (const f of testFilesNames) {
@@ -65,13 +65,13 @@ describe("POST /api/test (golden file, NDJSON)", () => {
 			testFiles.push({ name: f, content });
 		}
 
-		// 1) abilita mutator e genera mutanti (API JSON)
+		// 1) abilita mutator e genera i mutanti
 		await request(app)
 			.post("/api/mutate")
 			.send({ mutators: [{ value: "TX" }] })
 			.expect(200);
 
-		// 2) avvia /api/test e leggi TUTTO lo stream NDJSON (accumulo + parse)
+		// 2) chiama /api/test e accumula lo stream NDJSON
 		const ndjsonText = await new Promise((resolve, reject) => {
 			request(app)
 				.post("/api/test")
@@ -90,12 +90,12 @@ describe("POST /api/test (golden file, NDJSON)", () => {
 				.end((err, res) => {
 					if (err) return reject(err);
 					if (res.status !== 200) return reject(new Error(`Unexpected status: ${res.status} - ${res.text}`));
-					resolve(res.text); // tutto lo stream NDJSON come stringa
+					resolve(res.text || "");
 				});
 		});
 
-		// parse NDJSON → array eventi
-		const events = ndjsonText
+		// 3) parse NDJSON → array di eventi
+		const events = (ndjsonText || "")
 			.split("\n")
 			.map((l) => l.trim())
 			.filter(Boolean)
@@ -107,16 +107,17 @@ describe("POST /api/test (golden file, NDJSON)", () => {
 				}
 			});
 
-		// deve esserci un "done" (stream terminato)
+		// deve esserci un "done" finale
 		const doneEvt = events.find((e) => e.type === "done");
 		expect(doneEvt).toBeDefined();
 
-		// 3) confronta il golden file (sumo-log.txt) con l’expected
+		// 4) confronta il “sumo-log.txt” generato con l’expected
 		const generatedReport = await fs.readFile(path.resolve("../MuSe/sumo/results/sumo-log.txt"), "utf8");
 		const expectedReport = await fs.readFile(path.resolve("./tests/utils/expected-sumo-log.txt"), "utf8");
 
+		// rimuovi righe con tempi e trailing spaces per confronto robusto
 		const cleanReport = (report) =>
-			report
+			String(report || "")
 				.split("\n")
 				.filter((line) => !line.includes("seconds") && !line.includes("minutes"))
 				.map((line) => line.trimEnd())
