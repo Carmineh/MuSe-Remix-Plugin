@@ -115,10 +115,21 @@ export default function useExecuteTesting(API_URL, selectedContract, updateConso
 								updateConsole(`[${obj.type}] ${obj.message || ""}`);
 								break;
 							case "report":
-								reportHtml = obj.content || "";
-								updateConsole("Report received.");
+								const html = obj.content || "";
+								if (html) {
+									updateConsole("Report received.");
+									if (client) {
+										try {
+											await client.fileManager.writeFile("/MuSe/results/report.html", html);
+											updateConsole("Report saved to /MuSe/results/report.html");
+										} catch (e) {
+											updateConsole(`Failed to save report: ${e?.message || e}`);
+										}
+									}
+								}
 								break;
 							case "done":
+								reportHtml = obj.content || "";
 								updateConsole(`DONE (exit code ${obj.code})`);
 								break;
 							default:
@@ -276,6 +287,9 @@ export const useRemixClient = () => {
 						mutators: selectedMutators,
 					}),
 				});
+
+				updateConsole("Clearing /MuSe folder...");
+				await client.fileManager.remove("/MuSe");
 
 				importDirectoryToRemix(client);
 

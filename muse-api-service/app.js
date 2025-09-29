@@ -308,7 +308,7 @@ app.post("/api/test", async (req, res) => {
 		}
 
 		// 6) ultimo chunk + chiusura
-		//write({ type: "report", content: reportContent });
+		write({ type: "report", content: reportContent });
 		//write({ type: "done", code });
 		return res.end();
 	} catch (err) {
