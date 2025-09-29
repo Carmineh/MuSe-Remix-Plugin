@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
-import { exec, spawn } from "node:child_process";
+import { exec } from "child_process";
 import { fileURLToPath } from "url";
 import * as path from "path";
 import * as fs from "fs";
 import { MuSeReportGenerator } from "../MuSe-Remix-Plugin/src/utils/generate_report.js";
+import { spawn } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,8 +41,21 @@ app.use(express.json());
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
+		// const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
+		// if (fs.existsSync(npmNpxPath)) {
+		// 	fs.rmSync(npmNpxPath, { recursive: true, force: true });
+		// }
+
 		switch (command) {
 			case "disable": {
+				// const sumoDir = PATHS.MUSE.SUMO_DIR;
+				// if (fs.existsSync(sumoDir)) {
+				// 	const files = fs.readdirSync(sumoDir);
+				// 	for (const file of files) {
+				// 		const filePath = path.join(sumoDir, file);
+				// 		fs.rmSync(filePath, { recursive: true, force: true });
+				// 	}
+				// }
 				const disableCMD = `npx sumo ${command}`;
 				exec(disableCMD, { cwd: PATHS.MUSE_PROJECT }, (error, stdout, stderr) => {
 					if (error) return reject(stderr || error.message);
@@ -73,37 +87,33 @@ export function runSumoCommand(command, parameters = []) {
 				break;
 			}
 
+			// case "test": {
+			// 	const testCMD = `npx sumo test`;
+			// 	exec(testCMD, { cwd: PATHS.MUSE_PROJECT }, (error, stdout, stderr) => {
+			// 		if (error) return reject(stderr || error.message);
+			// 		console.log(stdout);
+			// 		resolve(stdout);
+			// 	});
+			// 	break;
+			// }
+
 			default:
 				reject("NO COMMAND FOUND");
 		}
 	});
 }
 
-/**
- * Esegue "npx sumo test" in streaming (Linux-only) e chiama i callback ad ogni chunk.
- * Usa stdbuf per forzare il line-buffering e PYTHONUNBUFFERED per sbloccare l'I/O Python.
- */
 function runSumoCommandStream(action, testingConfig, { cwd, onStdout, onStderr } = {}) {
 	return new Promise((resolve, reject) => {
-		// Linux fisso: forza line-buffer su stdout/stderr
-		const child = spawn("bash", ["-lc", "stdbuf -oL -eL npx sumo test"], {
+		// costruisci comando (qui per "test", ma puoi gestire altri action)
+		const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
+		const args = ["sumo", action];
+
+		const child = spawn(cmd, args, {
 			cwd,
-			env: { ...process.env, PYTHONUNBUFFERED: "1" },
+			env: { ...process.env /* se ti serve passare config come env */ },
 			shell: false,
 		});
-
-		if (onStdout)
-			child.stdout.on("data", (buf) => {
-				try {
-					onStdout(buf);
-				} catch {}
-			});
-		if (onStderr)
-			child.stderr.on("data", (buf) => {
-				try {
-					onStderr(buf);
-				} catch {}
-			});
 
 		child.on("error", (err) => reject(err));
 		child.on("close", (code) => resolve({ code }));
@@ -288,8 +298,8 @@ app.post("/api/test", async (req, res) => {
 			write({ type: "warn", message: "Errore nella scrittura di sumo-config.js" });
 		}
 
-		// 4) esegui sumo in streaming (Linux, unbuffered)
-		//write({ type: "status", message: "Esecuzione test avviata" });
+		// 4) esegui sumo in streaming
+		write({ type: "status", message: "Esecuzione test avviata" });
 		const { code } = await runSumoCommandStream("test", testingConfig, {
 			cwd: PATHS.MUSE_PROJECT,
 			onStdout: makeLineWriter("log"),
@@ -304,12 +314,12 @@ app.post("/api/test", async (req, res) => {
 			write({ type: "info", message: `Report generated at: ${reportPath}` });
 			reportContent = fs.readFileSync(reportPath, "utf8");
 		} catch (e) {
-			write({ type: "warn", message: "Can't generate report" });
+			write({ type: "warn", message: "Impossibile generare/leggere il report" });
 		}
 
 		// 6) ultimo chunk + chiusura
-		//write({ type: "report", content: reportContent });
-		//write({ type: "done", code });
+		write({ type: "report", content: reportContent });
+		write({ type: "done", code });
 		return res.end();
 	} catch (err) {
 		write({ type: "error", message: err?.message || String(err) });
@@ -317,6 +327,64 @@ app.post("/api/test", async (req, res) => {
 		return res.end();
 	}
 });
+
+// app.post("/api/test", async (req, res) => {
+// 	try {
+// 		copyTestConfig();
+
+// 		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+
+// 		createFolders(dirs);
+
+// 		clearFolders([PATHS.MUSE.TESTS_DIR]);
+
+// 		const { testingConfig, testFiles } = req.body;
+
+// 		// Salva i file nella cartella tests
+// 		const testsDir = PATHS.MUSE.TESTS_DIR;
+// 		if (!fs.existsSync(testsDir)) {
+// 			fs.mkdirSync(testsDir, { recursive: true });
+// 		}
+
+// 		for (const file of testFiles) {
+// 			const filePath = path.join(testsDir, file.name);
+// 			fs.writeFileSync(filePath, file.content);
+// 		}
+
+// 		const configPath = PATHS.MUSE.CONFIG_FILE;
+// 		let content;
+// 		try {
+// 			content = fs.readFileSync(configPath, "utf-8");
+// 		} catch (err) {
+// 			console.error("Errore nella lettura di sumo-config.js:", err);
+// 			return res.status(500).json({ error: "Unable to read sumo-config.js" });
+// 		}
+
+// 		content = content.replace(/(testingFramework:\s*)["'][^"']*["']/, `$1"${testingConfig.testingFramework}"`);
+// 		content = content.replace(/(testingTimeOutInSec:\s*)\d+/, `$1${testingConfig.testingTimeOutInSec}`);
+
+// 		try {
+// 			fs.writeFileSync(configPath, content, "utf-8");
+// 			console.log("sumo-config.js aggiornato");
+// 		} catch (err) {
+// 			console.error("Errore nella scrittura del file:", err);
+// 		}
+
+// 		// Esegui il comando di testing
+// 		const output = await runSumoCommand("test", testingConfig);
+// 		const last10Lines = output.split("\n").slice(-10).join("\n");
+
+// 		// Generate report
+// 		const generator = new MuSeReportGenerator();
+// 		const reportPath = generator.generateReport();
+// 		console.log(`Report generated at: ${reportPath}`);
+// 		const reportContent = fs.readFileSync(reportPath, "utf8");
+// 		res.status(200).json({ output: last10Lines || "OK", report: reportContent });
+// 	} catch (err) {
+// 		console.error("Errore durante il testing:", err.message || err);
+// 		res.status(500).json({ error: err.message });
+// 	}
+// });
 
 app.get("/api/files-to-import", (req, res) => {
 	try {
