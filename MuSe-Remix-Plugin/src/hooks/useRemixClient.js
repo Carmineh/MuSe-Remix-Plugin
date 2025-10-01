@@ -289,7 +289,10 @@ export const useRemixClient = () => {
 				});
 
 				updateConsole("Clearing /MuSe folder...");
-				await client.fileManager.remove("/MuSe");
+				const prova = createClient();
+				if (prova.fileManager.getFolder("/MuSe")) {
+					await prova.fileManager.remove("/MuSe");
+				}
 
 				importDirectoryToRemix(client);
 
