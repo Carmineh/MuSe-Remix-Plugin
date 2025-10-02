@@ -170,7 +170,7 @@ test("Execute mutation", async ({ page }) => {
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
-    expect(consoleText).toContain("File saved successfully");
+    expect(consoleText).toContain("mutants generated");
 
 
 });
