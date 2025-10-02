@@ -5,7 +5,8 @@ export default defineConfig({
     workers: 1 ,
     timeout: 100_000,
     use: {
-        headless: false,
+        // Run headless in CI environments, headed locally for debugging
+        headless: process.env.CI ? true : false,
         viewport: { width: 1280, height: 800 },
         ignoreHTTPSErrors: true,
     },
