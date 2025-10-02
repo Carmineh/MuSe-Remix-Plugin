@@ -288,10 +288,18 @@ export const useRemixClient = () => {
 					}),
 				});
 
-				updateConsole("Clearing /MuSe folder...");
-				const prova = createClient();
-				if (prova.fileManager.getFolder("/MuSe")) {
-					await prova.fileManager.remove("/MuSe");
+				let folderExists = false;
+				try {
+					const folder = await client.fileManager.getFolder("/MuSe/");
+					const isResultsDir = folder?.["MuSe/results"]?.isDirectory === true; // true se esiste ed è directory
+					if (isResultsDir) folderExists = true;
+					else folderExists = false;
+				} catch {
+					folderExists = false;
+				}
+
+				if (folderExists) {
+					await client.fileManager.remove("/MuSe/"); 
 				}
 
 				importDirectoryToRemix(client);
@@ -301,7 +309,7 @@ export const useRemixClient = () => {
 					updateConsole(
 						"No mutants generated. Please check if the selected mutators are compatible with the contract."
 					);
-				else updateConsole(`File saved successfully: ${data.message || "OK"}`);
+				else updateConsole(`${data.output} mutants generated.`);
 			} catch (error) {
 				updateConsole(`Error during mutation execution: ${error.message}`);
 			}

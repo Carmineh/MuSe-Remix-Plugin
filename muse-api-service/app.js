@@ -79,10 +79,6 @@ export function runSumoCommand(command, parameters = []) {
 	});
 }
 
-/**
- * Esegue "npx sumo test" in streaming (Linux-only) e chiama i callback ad ogni chunk.
- * Usa stdbuf per forzare il line-buffering e PYTHONUNBUFFERED per sbloccare l'I/O Python.
- */
 function runSumoCommandStream(action, testingConfig, { cwd, onStdout, onStderr } = {}) {
 	return new Promise((resolve, reject) => {
 		// Linux fisso: forza line-buffer su stdout/stderr
