@@ -6,6 +6,19 @@ jest.mock("@remixproject/plugin-iframe");
 
 const API_URL = "http://localhost:3001";
 
+// Polyfills for TextEncoder and TextDecoder
+global.TextEncoder = class {
+	encode(str) {
+		return new Uint8Array(Buffer.from(str, "utf8"));
+	}
+};
+
+global.TextDecoder = class {
+	decode(bytes) {
+		return Buffer.from(bytes).toString("utf8");
+	}
+};
+
 function advanceAllTimers() {
 	jest.runOnlyPendingTimers();
 }
@@ -118,18 +131,18 @@ describe("useRemixClient", () => {
 		client.fileManager.writeFile.mockResolvedValue();
 		client.fileManager.remove = jest.fn().mockResolvedValue();
 
-		// Mock API calls
+		// Mock API calls with separate implementations for each call
 		global.fetch = jest
 			.fn()
-			.mockImplementation(async () => ({
+			.mockImplementationOnce(async () => ({
 				ok: true,
 				json: async () => ({ status: "saved" }),
 			}))
-			.mockImplementation(async () => ({
+			.mockImplementationOnce(async () => ({
 				ok: true,
 				json: async () => ({ output: 3, message: "Mutants generated" }),
 			}))
-			.mockImplementation(async () => ({
+			.mockImplementationOnce(async () => ({
 				ok: true,
 				json: async () => [
 					{ path: "/MuSe/mutants/m1.sol", content: "contract M1 {}" },
@@ -152,7 +165,7 @@ describe("useRemixClient", () => {
 
 		const msgs = result.current.consoleMessages.join("\n");
 		expect(msgs).toContain("Starting mutation process for");
-		expect(msgs).toContain("File saved successfully");
+		expect(msgs).toContain("3 mutants generated");
 		expect(client.fileManager.writeFile).toHaveBeenCalledWith("/MuSe/mutants/m1.sol", "contract M1 {}");
 	});
 	//ok
@@ -169,11 +182,11 @@ describe("useRemixClient", () => {
 		// Mock API for "no mutants" case
 		global.fetch = jest
 			.fn()
-			.mockImplementation(async () => ({
+			.mockImplementationOnce(async () => ({
 				ok: true,
 				json: async () => ({ status: "saved" }),
 			}))
-			.mockImplementation(async () => ({
+			.mockImplementationOnce(async () => ({
 				ok: true,
 				json: async () => ({ output: 0, message: "No mutants" }),
 			}));
@@ -219,13 +232,33 @@ describe("useRemixClient", () => {
 			{ name: "Other.hardhat.test.js", content: "describe('Other', ()=>{})" },
 		];
 
-		// Mock test API call
-		global.fetch = jest.fn().mockImplementation(async () => ({
+		// Mock streaming response
+		const mockReader = {
+			read: jest
+				.fn()
+				.mockResolvedValueOnce({
+					value: new TextEncoder().encode('{"type":"log","line":"All tests passed"}\n'),
+					done: false,
+				})
+				.mockResolvedValueOnce({
+					value: new TextEncoder().encode('{"type":"report","content":"<html><body>Report OK</body></html>"}\n'),
+					done: false,
+				})
+				.mockResolvedValueOnce({
+					value: new TextEncoder().encode('{"type":"done","code":0}\n'),
+					done: false,
+				})
+				.mockResolvedValueOnce({
+					value: undefined,
+					done: true,
+				}),
+		};
+
+		global.fetch = jest.fn().mockImplementationOnce(async () => ({
 			ok: true,
-			json: async () => ({
-				output: "All tests passed",
-				report: "<html><body>Report OK</body></html>",
-			}),
+			body: {
+				getReader: () => mockReader,
+			},
 		}));
 
 		await act(async () => {
@@ -233,7 +266,8 @@ describe("useRemixClient", () => {
 		});
 
 		const msgs = result.current.consoleMessages.join("\n");
-		expect(msgs).toContain("Testing complete: All tests passed");
+		expect(msgs).toContain("Report received");
+		expect(msgs).toContain("Report saved to /MuSe/results/report.html");
 		expect(client.fileManager.writeFile).toHaveBeenCalledWith(
 			"/MuSe/results/report.html",
 			"<html><body>Report OK</body></html>"
