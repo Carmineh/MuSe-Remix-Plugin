@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { exec } from "child_process";
+import { exec, spawn } from "node:child_process";
 import { fileURLToPath } from "url";
 import * as path from "path";
 import * as fs from "fs";
@@ -40,21 +40,8 @@ app.use(express.json());
 // Funzione per eseguire "npx sumo ..."
 export function runSumoCommand(command, parameters = []) {
 	return new Promise((resolve, reject) => {
-		// const npmNpxPath = path.join(process.env.HOME || "/root", ".npm/_npx");
-		// if (fs.existsSync(npmNpxPath)) {
-		// 	fs.rmSync(npmNpxPath, { recursive: true, force: true });
-		// }
-
 		switch (command) {
 			case "disable": {
-				// const sumoDir = PATHS.MUSE.SUMO_DIR;
-				// if (fs.existsSync(sumoDir)) {
-				// 	const files = fs.readdirSync(sumoDir);
-				// 	for (const file of files) {
-				// 		const filePath = path.join(sumoDir, file);
-				// 		fs.rmSync(filePath, { recursive: true, force: true });
-				// 	}
-				// }
 				const disableCMD = `npx sumo ${command}`;
 				exec(disableCMD, { cwd: PATHS.MUSE_PROJECT }, (error, stdout, stderr) => {
 					if (error) return reject(stderr || error.message);
@@ -86,19 +73,36 @@ export function runSumoCommand(command, parameters = []) {
 				break;
 			}
 
-			case "test": {
-				const testCMD = `npx sumo test`;
-				exec(testCMD, { cwd: PATHS.MUSE_PROJECT }, (error, stdout, stderr) => {
-					if (error) return reject(stderr || error.message);
-					console.log(stdout);
-					resolve(stdout);
-				});
-				break;
-			}
-
 			default:
 				reject("NO COMMAND FOUND");
 		}
+	});
+}
+
+function runSumoCommandStream(action, testingConfig, { cwd, onStdout, onStderr } = {}) {
+	return new Promise((resolve, reject) => {
+		// Linux fisso: forza line-buffer su stdout/stderr
+		const child = spawn("bash", ["-lc", "stdbuf -oL -eL npx sumo test"], {
+			cwd,
+			env: { ...process.env, PYTHONUNBUFFERED: "1" },
+			shell: false,
+		});
+
+		if (onStdout)
+			child.stdout.on("data", (buf) => {
+				try {
+					onStdout(buf);
+				} catch {}
+			});
+		if (onStderr)
+			child.stderr.on("data", (buf) => {
+				try {
+					onStderr(buf);
+				} catch {}
+			});
+
+		child.on("error", (err) => reject(err));
+		child.on("close", (code) => resolve({ code }));
 	});
 }
 
@@ -147,7 +151,7 @@ export function createFolders(dirs) {
 		}
 	}
 }
-export function clearDirectories(dirs) {
+export function clearFolders(dirs) {
 	for (const dir of dirs) {
 		if (fs.existsSync(dir)) {
 			const files = fs.readdirSync(dir);
@@ -164,7 +168,7 @@ app.post("/api/save", (req, res) => {
 	const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
 
 	createFolders(dirs);
-
+	// clearFolders(dirs);
 	const contractsDir = PATHS.MUSE.CONTRACTS_DIR;
 	if (fs.existsSync(contractsDir)) {
 		const files = fs.readdirSync(contractsDir);
@@ -199,7 +203,10 @@ app.post("/api/mutate", async (req, res) => {
 	try {
 		const mutators = req.body.mutators.map((m) => m.value);
 		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
+
+		const dirs_to_clear = [PATHS.MUSE.BUILD_DIR, path.join(PATHS.MUSE.SUMO_DIR)];
 		createFolders(dirs);
+		clearFolders(dirs_to_clear);
 
 		await runSumoCommand("disable");
 		await runSumoCommand("enable", mutators);
@@ -219,74 +226,106 @@ app.post("/api/mutate", async (req, res) => {
 });
 
 app.post("/api/test", async (req, res) => {
+	// headers per streaming
+	res.setHeader("Content-Type", "application/x-ndjson; charset=utf-8");
+	res.setHeader("Transfer-Encoding", "chunked");
+	res.setHeader("Cache-Control", "no-cache");
+	res.flushHeaders?.();
+
+	const write = (obj) => res.write(JSON.stringify(obj) + "\n");
+
+	// helper per righe (stdout/stderr possono arrivare “a pezzi”)
+	const makeLineWriter = (type) => {
+		let buffer = "";
+		return (chunk) => {
+			buffer += chunk.toString();
+			let idx;
+			while ((idx = buffer.indexOf("\n")) >= 0) {
+				const line = buffer.slice(0, idx);
+				buffer = buffer.slice(idx + 1);
+				if (line.trim()) write({ type, line });
+			}
+		};
+	};
+
 	try {
+		// 1) setup iniziale (come nel tuo codice)
 		copyTestConfig();
-
 		const dirs = [PATHS.MUSE.CONTRACTS_DIR, PATHS.MUSE.BUILD_DIR, PATHS.MUSE.TESTS_DIR];
-
 		createFolders(dirs);
-
-		clearDirectories([PATHS.MUSE.TESTS_DIR]);
+		clearFolders([PATHS.MUSE.TESTS_DIR]);
 
 		const { testingConfig, testFiles } = req.body;
 
-		// Salva i file nella cartella tests
+		// 2) salva i file test
 		const testsDir = PATHS.MUSE.TESTS_DIR;
-		if (!fs.existsSync(testsDir)) {
-			fs.mkdirSync(testsDir, { recursive: true });
-		}
-
+		if (!fs.existsSync(testsDir)) fs.mkdirSync(testsDir, { recursive: true });
 		for (const file of testFiles) {
 			const filePath = path.join(testsDir, file.name);
 			fs.writeFileSync(filePath, file.content);
 		}
 
+		// 3) aggiorna sumo-config.js
 		const configPath = PATHS.MUSE.CONFIG_FILE;
 		let content;
 		try {
 			content = fs.readFileSync(configPath, "utf-8");
 		} catch (err) {
-			console.error("Errore nella lettura di sumo-config.js:", err);
-			return res.status(500).json({ error: "Unable to read sumo-config.js" });
+			write({ type: "error", message: "Unable to read sumo-config.js" });
+			res.statusCode = 500;
+			return res.end();
 		}
-
 		content = content.replace(/(testingFramework:\s*)["'][^"']*["']/, `$1"${testingConfig.testingFramework}"`);
 		content = content.replace(/(testingTimeOutInSec:\s*)\d+/, `$1${testingConfig.testingTimeOutInSec}`);
-
 		try {
 			fs.writeFileSync(configPath, content, "utf-8");
-			console.log("sumo-config.js aggiornato");
+			write({ type: "info", message: "sumo-config.js aggiornato" });
 		} catch (err) {
-			console.error("Errore nella scrittura del file:", err);
+			write({ type: "warn", message: "Errore nella scrittura di sumo-config.js" });
 		}
 
-		// Esegui il comando di testing
-		const output = await runSumoCommand("test", testingConfig);
-		const last10Lines = output.split("\n").slice(-10).join("\n");
+		// 4) esegui sumo in streaming (Linux, unbuffered)
+		//write({ type: "status", message: "Esecuzione test avviata" });
+		const { code } = await runSumoCommandStream("test", testingConfig, {
+			cwd: PATHS.MUSE_PROJECT,
+			onStdout: makeLineWriter("log"),
+			onStderr: makeLineWriter("error"),
+		});
 
-		// Generate report
-		const generator = new MuSeReportGenerator();
-		const reportPath = generator.generateReport();
-		console.log(`Report generated at: ${reportPath}`);
-		const reportContent = fs.readFileSync(reportPath, "utf8");
-		res.status(200).json({ output: last10Lines || "OK", report: reportContent });
+		// 5) genera report alla fine
+		let reportContent = "";
+		try {
+			const generator = new MuSeReportGenerator();
+			const reportPath = generator.generateReport();
+			write({ type: "info", message: `Report generated at: ${reportPath}` });
+			reportContent = fs.readFileSync(reportPath, "utf8");
+		} catch (e) {
+			write({ type: "warn", message: "Can't generate report" });
+		}
+
+		// 6) ultimo chunk + chiusura
+		write({ type: "report", content: reportContent });
+		//write({ type: "done", code });
+		return res.end();
 	} catch (err) {
-		console.error("Errore durante il testing:", err.message || err);
-		res.status(500).json({ error: err.message });
+		write({ type: "error", message: err?.message || String(err) });
+		res.statusCode = 500;
+		return res.end();
 	}
 });
 
 app.get("/api/files-to-import", (req, res) => {
 	try {
-		const sumoDir = PATHS.MUSE.SUMO_DIR;
-		const files = getAllFiles(sumoDir).map((filePath) => {
-			const content = fs.readFileSync(filePath, "utf8");
-			const relativePath = path.relative(sumoDir, filePath);
-			return {
-				path: `MuSe/${relativePath.replace(/\\/g, "/")}`,
-				content,
-			};
-		});
+		const files = getAllFiles(PATHS.MUSE.SUMO_DIR)
+			.filter((filePath) => !filePath.includes("baseline")) // elimina i file indesiderati
+			.map((filePath) => {
+				const content = fs.readFileSync(filePath, "utf8");
+				const relativePath = path.relative(PATHS.MUSE.SUMO_DIR, filePath);
+				return {
+					path: `MuSe/${relativePath.replace(/\\/g, "/")}`,
+					content,
+				};
+			});
 
 		res.json(files);
 	} catch (err) {

@@ -1,14 +1,171 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@remixproject/plugin-iframe";
 
+export default function useExecuteTesting(API_URL, selectedContract, updateConsole, client) {
+	const abortRef = useRef(null);
+
+	const USER_LOG_PATTERNS = [
+		/^\s*>\s*Mutation\s+\d+\s+of\s+\d+\s+-\s+\[.+\]$/, // > Mutation 1 of 1 - [...]
+		/^Mutation Testing completed in .+ minutes? .+$/, // Mutation Testing completed in X minutes 👋
+		/^SuMo generated \d+ mutants:\s*$/, // SuMo generated 1 mutants:
+		/^\s*-\s*\d+\s+(live|killed|stillborn|equivalent|redundant|timed-out);\s*$/, // - 1 live; ...
+		/^Mutation Score:\s*[\d.]+\s*%$/, // Mutation Score: 0.00 %
+	];
+
+	function normalizeMutationLine(line) {
+		if (!line) return line;
+		// 1) togli il "> " iniziale (e spazi)
+		let out = line.replace(/^\s*>\s*/, "");
+		// 2) dentro le parentesi quadre, rimuovi " of <qualcosa>"
+		//    es: [m38002ec3 of Simple.sol] -> [m38002ec3]
+		out = out.replace(/\[([^\]]+?)\s+of\s+[^\]]+\]/, "[$1]");
+		return out;
+	}
+
+	function shouldShowUserLine(line) {
+		if (!line) return false;
+		const s = line.trimEnd();
+		if (s.startsWith("{") && s.endsWith("}")) return false; // nascondi oggetti debug
+		return USER_LOG_PATTERNS.some((re) => re.test(s));
+	}
+
+	const cancelTesting = useCallback(() => {
+		if (abortRef.current) {
+			abortRef.current.abort();
+			updateConsole("Testing aborted by user.");
+		}
+	}, [updateConsole]);
+
+	const executeTesting = useCallback(
+		async (testingConfig, testFiles) => {
+			updateConsole(
+				`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
+			);
+
+			const contractName = (selectedContract.split("/").pop() || "").replace(".sol", "");
+			const formattedTestFiles = (testFiles || []).filter(
+				(file) =>
+					file.name.toLowerCase().includes(contractName.toLowerCase()) &&
+					file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
+			);
+
+			if (formattedTestFiles.length === 0) {
+				updateConsole("No test files found for the selected contract and framework");
+				// continuo comunque: il server può dare messaggi utili
+			}
+
+			const ac = new AbortController();
+			abortRef.current = ac;
+
+			try {
+				const resp = await fetch(`${API_URL}/api/test`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ testingConfig, testFiles: formattedTestFiles }),
+					signal: ac.signal,
+				});
+
+				// Se il server risponde subito con errore “classico”
+				if (!resp.body) {
+					let errJson = {};
+					try {
+						errJson = await resp.json();
+					} catch {}
+					updateConsole(`Testing error: ${errJson.error || resp.statusText}`);
+					return;
+				}
+
+				// --- Lettura streaming NDJSON ---
+				const reader = resp.body.getReader();
+				const decoder = new TextDecoder("utf-8");
+				let buffer = "";
+				let reportHtml = null;
+
+				while (true) {
+					const { value, done } = await reader.read();
+					if (done) break;
+					buffer += decoder.decode(value, { stream: true });
+
+					let idx;
+					while ((idx = buffer.indexOf("\n")) >= 0) {
+						const line = buffer.slice(0, idx).trim();
+						buffer = buffer.slice(idx + 1);
+						if (!line) continue;
+
+						let obj;
+						try {
+							obj = JSON.parse(line);
+						} catch (e) {
+							updateConsole(`[parse] ${line}`);
+							continue;
+						}
+
+						switch (obj.type) {
+							case "log":
+								if (shouldShowUserLine(obj.line)) updateConsole(normalizeMutationLine(obj.line));
+								break;
+							case "error":
+								if (shouldShowUserLine(obj.line)) updateConsole(`ERR: ${normalizeMutationLine(obj.line)}`);
+								break;
+							case "warn":
+								break;
+							case "info":
+								break;
+							case "status":
+								updateConsole(`[${obj.type}] ${obj.message || ""}`);
+								break;
+							case "report":
+								const html = obj.content || "";
+								if (html) {
+									updateConsole("Report received.");
+									if (client) {
+										try {
+											await client.fileManager.writeFile("/MuSe/results/report.html", html);
+											updateConsole("Report saved to /MuSe/results/report.html");
+										} catch (e) {
+											updateConsole(`Failed to save report: ${e?.message || e}`);
+										}
+									}
+								}
+								break;
+							case "done":
+								reportHtml = obj.content || "";
+								updateConsole(`DONE (exit code ${obj.code})`);
+								break;
+							default:
+								updateConsole(`[${obj.type || "msg"}] ${obj.message || obj.line || ""}`);
+						}
+					}
+				}
+
+				if (reportHtml && client) {
+					await client.fileManager.writeFile("/MuSe/results/report.html", reportHtml);
+					updateConsole("Report saved to /MuSe/results/report.html");
+				}
+			} catch (err) {
+				if (err && err.name === "AbortError") {
+					updateConsole("Fetch aborted.");
+				} else {
+					updateConsole(`Error during testing: ${err && err.message ? err.message : String(err)}`);
+				}
+			} finally {
+				if (abortRef.current === ac) abortRef.current = null;
+			}
+		},
+		[API_URL, selectedContract, client, updateConsole]
+	);
+
+	return { executeTesting, cancelTesting };
+}
+
 export const useRemixClient = () => {
+	const API_URL = "http://localhost:3001";
+
 	const [client, setClient] = useState(null);
 	const [contracts, setContracts] = useState([]);
 	const [selectedContract, setSelectedContract] = useState("");
 	const [consoleMessages, setConsoleMessages] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
-
-	const API_URL = "http://localhost:3001";
 
 	const updateConsole = useCallback((message) => {
 		const timestamp = new Date().toLocaleTimeString();
@@ -43,6 +200,7 @@ export const useRemixClient = () => {
 		return contracts;
 	}, []);
 
+	const { executeTesting, cancelTesting } = useExecuteTesting(API_URL, selectedContract, updateConsole, client);
 	// Load contracts from Remix
 	const loadContracts = useCallback(async () => {
 		if (!client) return;
@@ -93,7 +251,6 @@ export const useRemixClient = () => {
 		initializePlugin();
 	}, [clearConsole, updateConsole, getContractsFromRemix]);
 
-	// Execute mutations function (TODO: implement actual mutation logic)
 	const executeMutations = useCallback(
 		async (selectedMutators) => {
 			if (!selectedContract) {
@@ -108,10 +265,8 @@ export const useRemixClient = () => {
 			updateConsole(`Starting mutation process for ${selectedContract}...`);
 
 			try {
-				// Leggo il contratto come stringa
 				const contract = await client.fileManager.readFile(selectedContract);
 
-				// Mando al server per salvare il file
 				const contractResponse = await fetch(`${API_URL}/api/save`, {
 					method: "POST",
 					headers: {
@@ -123,7 +278,6 @@ export const useRemixClient = () => {
 					}),
 				});
 
-				// Eseguo le mutazioni
 				const mutatorResponse = await fetch(`${API_URL}/api/mutate`, {
 					method: "POST",
 					headers: {
@@ -133,6 +287,21 @@ export const useRemixClient = () => {
 						mutators: selectedMutators,
 					}),
 				});
+
+				let folderExists = false;
+				try {
+					const folder = await client.fileManager.getFolder("/MuSe/");
+					const isResultsDir = folder?.["MuSe/results"]?.isDirectory === true; // true se esiste ed è directory
+					if (isResultsDir) folderExists = true;
+					else folderExists = false;
+				} catch {
+					folderExists = false;
+				}
+
+				if (folderExists) {
+					await client.fileManager.remove("/MuSe/"); 
+				}
+
 				importDirectoryToRemix(client);
 
 				const data = await mutatorResponse.json();
@@ -140,8 +309,8 @@ export const useRemixClient = () => {
 					updateConsole(
 						"No mutants generated. Please check if the selected mutators are compatible with the contract."
 					);
-				else updateConsole(`File saved successfully: ${data.message || "OK"}`);
-			 } catch (error) {
+				else updateConsole(`${data.output} mutants generated.`);
+			} catch (error) {
 				updateConsole(`Error during mutation execution: ${error.message}`);
 			}
 		},
@@ -167,50 +336,63 @@ export const useRemixClient = () => {
 		}
 	}
 
-	const executeTesting = useCallback(
-		async (testingConfig, testFiles) => {
-			updateConsole(
-				`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
-			);
+	// const executeTesting = useCallback(
+	// 	async (testingConfig, testFiles) => {
+	// 		updateConsole(
+	// 			`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
+	// 		);
 
-			const contractName = selectedContract.split("/").pop().replace(".sol", "");
-			const formattedTestFiles = testFiles.filter(
-				(file) =>
-					file.name.toLowerCase().includes(contractName.toLowerCase()) &&
-					file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
-			);
-			console.log(formattedTestFiles);
-			if (formattedTestFiles.length === 0) updateConsole("No test files found for the selected contract and framework");
+	// 		const contractName = selectedContract.split("/").pop().replace(".sol", "");
+	// 		const formattedTestFiles = testFiles.filter(
+	// 			(file) =>
+	// 				file.name.toLowerCase().includes(contractName.toLowerCase()) &&
+	// 				file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
+	// 		);
+	// 		console.log(formattedTestFiles);
+	// 		if (formattedTestFiles.length === 0) updateConsole("No test files found for the selected contract and framework");
 
-			try {
-				const response = await fetch(`${API_URL}/api/test`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ testingConfig, testFiles: formattedTestFiles }),
-				});
-				const result = await response.json();
-				if (response.ok) {
-					updateConsole(`Testing complete: ${result.output}`);
-					if (!client) return;
-					await client.fileManager.writeFile("/MuSe/results/report.html", result.report);
-					updateConsole("Report saved to /MuSe/results/report.html");
-				} else {
-					updateConsole(`Testing error: ${result.error}`);
-				}
-			} catch (err) {
-				updateConsole(`Error during testing: ${err.message}`);
-			}
+	// 		try {
+	// 			const response = await fetch(`${API_URL}/api/test`, {
+	// 				method: "POST",
+	// 				headers: { "Content-Type": "application/json" },
+	// 				body: JSON.stringify({ testingConfig, testFiles: formattedTestFiles }),
+	// 			});
+	// 			const result = await response.json();
+	// 			if (response.ok) {
+	// 				updateConsole(`Testing complete: ${result.output}`);
+	// 				if (!client) return;
+	// 				await client.fileManager.writeFile("/MuSe/results/report.html", result.report);
+	// 				updateConsole("Report saved to /MuSe/results/report.html");
+	// 			} else {
+	// 				updateConsole(`Testing error: ${result.error}`);
+	// 			}
+	// 		} catch (err) {
+	// 			updateConsole(`Error during testing: ${err.message}`);
+	// 		}
+	// 	},
+	// 	[client, updateConsole]
+	// );
+
+	const startTesting = useCallback(
+		async (testingConfig) => {
+			// prendi i test da Remix
+			const testFiles = await getTestFiles();
+			// avvia l’esecuzione (stream NDJSON)
+			await executeTesting(testingConfig, testFiles);
 		},
-		[client, updateConsole]
+		[executeTesting, getTestFiles]
 	);
 
 	async function importDirectoryToRemix(remixPluginClient) {
 		try {
 			const response = await fetch(`${API_URL}/api/files-to-import`);
 
+			//await remixPluginClient.fileManager.remove("/MuSe/");
+
 			const files = await response.json();
 
 			for (const file of files) {
+				//await remixPluginClient.fileManager.remove(file.path);
 				await remixPluginClient.fileManager.writeFile(file.path, file.content);
 			}
 		} catch (error) {
@@ -253,6 +435,8 @@ export const useRemixClient = () => {
 		loadContracts,
 		executeMutations,
 		executeTesting,
+		startTesting,
+		cancelTesting,
 		getTestFiles,
 		isLoading,
 	};
