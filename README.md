@@ -7,9 +7,9 @@
 [![CI/CD Pipeline](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml)
 [![Docker Image Version](https://img.shields.io/docker/v/danielecarangelo/muse-remix-plugin)](https://hub.docker.com/r/danielecarangelo/muse-remix-plugin/tags)
 
-
 # MuSe - MUtation SEeding tool Plugin for Remix IDE
-**[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie and Forge, hybrid test suites, and custom test scripts.
+
+**[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie, Truffle and Forge, hybrid test suites, and custom test scripts.
 
 ## Table of Contents
 
@@ -48,7 +48,7 @@ cd MuSe-Remix-Plugin
 # Install dependencies for MuSe
 cd MuSe
 npm install
-# For the Framework installation make sure to check MuSe and SuMo repositories 
+# For the Framework installation make sure to check MuSe and SuMo repositories
 # Framework are mandatory to run tests
 
 # Install dependencies for the plugin
@@ -59,11 +59,11 @@ npm install
 cd ../muse-api-service
 npm install
 
-# Start the server inside MuSe-Remix-Plugin
+# Start the server inside muse-api-service
 node server.js
 ```
 
-<h2 id="jigsaw-connect-to-remix-ide">🧩 Connect to Remix IDE</h2>
+<h2 id="jigsaw-connect-to-remix-ide">🧩 Connect to Remix IDE (GitHub Pages Version)</h2>
 
 1. Open [Remix IDE](https://remix.ethereum.org/)
 2. Go to the **Plugin Manager**
@@ -75,6 +75,21 @@ node server.js
    Url: https://carmineh.github.io/MuSe-Remix-Plugin/
    ```
 5. Activate the plugin
+
+<h2 id="jigsaw-connect-to-remix-ide">🧩 Connect to Remix IDE (Local Version)</h2>
+
+1. Go into the **MuSe-Remix-Plugin** folder
+2. Run `npm run dev`
+3. Open [Remix IDE](https://remix.ethereum.org/)
+4. Go to the **Plugin Manager**
+5. Click on **Connect to a Local Plugin**
+6. Enter the following:
+   ```yaml
+   Plugin Name: MuSe
+   Display Name: MuSe
+   Url: http://localhost:5173/MuSe-Remix-Plugin/
+   ```
+7. Activate the plugin
 
 <p align="center">
 <img width="800" height="640" alt="InstallationRemix" src="https://github.com/user-attachments/assets/6170e5ac-1f9a-46b6-92a4-71d658c11c12" />
@@ -103,22 +118,25 @@ The MuSe Plugin UI includes:
    - Click to run mutation using selected contract and mutants
    - The mutated contract will be automatically added to Remix under the `MuSe/`
 4. **Test Button**
+
    - Open the Test Configuration to start the _Mutation testing_
-  
+
 5. **Test Configuration**
+
    - _Testing Framework_: Choose one of the 4 available frameworks
    - _Timeout_: A timeout in seconds to stop looped testings
 
 6. **Console**
+
    - A console that will show operations results and errors
 
    <p align="center">
 
-    <img width="702" height="965" alt="PluginUI" src="https://github.com/user-attachments/assets/9b22fa8f-75e2-46ea-b8d1-cd892a0559a6" />
-    <img width="702" height="573" alt="Screenshot 2025-09-02 151214" src="https://github.com/user-attachments/assets/d80e19b5-b848-40be-b920-0af6e38969be" />
+    <img width="550" height="856" alt="Screenshot 2025-08-22 192741" src="https://github.com/user-attachments/assets/bd87f5ad-d3f9-4cc7-ada7-fdc2c78bf44f" />
+    <img width="550" height="573" alt="Screenshot 2025-09-02 151214" src="https://github.com/user-attachments/assets/d80e19b5-b848-40be-b920-0af6e38969be" />
 
    </p>
-   
+
 <h3> 👾 Mutation Operators </h3>
 This plugin includes the mutation operators defined in <b><a href="https://github.com/GGFlutterdev/SuMo-SOlidity-MUtator?tab=readme-ov-file#mutation-operators-">Sumo</a></b> and <b><a href="https://github.com/GerardoIuliano/MuSe#mutation-operators-">MuSe</a></b>
 
@@ -134,7 +152,7 @@ This plugin includes the mutation operators defined in <b><a href="https://githu
    Press the **Mutate** button to generate mutated versions of the selected contract.
 
 4. **Prepare the Test File**  
-   Make sure the test file is renamed correctly. Its name must contain both:
+   Make sure the test file is renamed correctly and it's placed inside the `/tests` folder on Remix. Its name must contain both:
 
    - The **contract name**
    - The **test framework** you're using (e.g., `hardhat`, `truffle`, etc.)
@@ -143,7 +161,7 @@ This plugin includes the mutation operators defined in <b><a href="https://githu
    > ✅ Example: `mycontract-hardhat.js`
 
 5. **Run the Test**  
-   Run your tests as you normally would using your test framework.
+   Run the tests using the button and see the progress inside the plugin's console
 
 6. **View the Mutation Report**  
    Once the test run is complete, open the `MuSe/results/report.html` file.
