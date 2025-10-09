@@ -2,7 +2,19 @@ import { renderHook, act } from "@testing-library/react";
 import { useRemixClient } from "../useRemixClient";
 import { createClient } from "@remixproject/plugin-iframe";
 
-jest.mock("@remixproject/plugin-iframe");
+jest.mock("@remixproject/plugin-iframe", () => ({
+	createClient: jest.fn(() => ({
+		fileManager: {
+			readdir: jest.fn(),
+			readFile: jest.fn(),
+			writeFile: jest.fn(),
+			getFolder: jest.fn(),
+			remove: jest.fn(),
+		},
+		onload: jest.fn((callback) => callback()),
+		on: jest.fn(),
+	})),
+}));
 
 const API_URL = "http://localhost:3001";
 
