@@ -218,7 +218,7 @@ test("No contract selected", async ({ page }) => {
 
 
 
-test("No test file found", async ({ page }) => {
+test("Executed Testing before Mutation", async ({ page }) => {
 
     await uploadPlugin(page);
 
@@ -244,7 +244,7 @@ test("No test file found", async ({ page }) => {
     const pluginFrame = page.locator('#plugin-muse').contentFrame();
     const consoleTextarea = pluginFrame.locator('#console');
     const consoleText = await consoleTextarea.inputValue();
-    expect(consoleText).toContain("No test files found");
+    expect(consoleText).toContain("Execute Mutations before running tests");
 
 
 });
