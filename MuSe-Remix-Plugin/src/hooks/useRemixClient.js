@@ -12,12 +12,10 @@ export default function useExecuteTesting(API_URL, selectedContract, updateConso
 		/^Mutation Score:\s*[\d.]+\s*%$/, // Mutation Score: 0.00 %
 	];
 
+	// Trasforma le stringhe : [m38002ec3 of Simple.sol] -> [m38002ec3]
 	function normalizeMutationLine(line) {
 		if (!line) return line;
-		// 1) togli il "> " iniziale (e spazi)
 		let out = line.replace(/^\s*>\s*/, "");
-		// 2) dentro le parentesi quadre, rimuovi " of <qualcosa>"
-		//    es: [m38002ec3 of Simple.sol] -> [m38002ec3]
 		out = out.replace(/\[([^\]]+?)\s+of\s+[^\]]+\]/, "[$1]");
 		return out;
 	}
@@ -25,7 +23,7 @@ export default function useExecuteTesting(API_URL, selectedContract, updateConso
 	function shouldShowUserLine(line) {
 		if (!line) return false;
 		const s = line.trimEnd();
-		if (s.startsWith("{") && s.endsWith("}")) return false; // nascondi oggetti debug
+		if (s.startsWith("{") && s.endsWith("}")) return false;
 		return USER_LOG_PATTERNS.some((re) => re.test(s));
 	}
 
@@ -38,6 +36,25 @@ export default function useExecuteTesting(API_URL, selectedContract, updateConso
 
 	const executeTesting = useCallback(
 		async (testingConfig, testFiles) => {
+			//
+			if (client) {
+				try {
+					try {
+						const folder = await client.fileManager.getFolder("/");
+						const isResultsDir = folder?.["MuSe"]?.isDirectory === true;
+						if (!isResultsDir) {
+							updateConsole("Execute Mutations before running tests.");
+							return;
+						}
+					} catch {
+						return;
+					}
+				} catch (error) {
+					updateConsole(`Error checking /MuSe/ folder: ${error.message}`);
+					return;
+				}
+			}
+
 			updateConsole(
 				`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
 			);
@@ -166,6 +183,7 @@ export const useRemixClient = () => {
 	const [selectedContract, setSelectedContract] = useState("");
 	const [consoleMessages, setConsoleMessages] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [hasMuSe, setHasMuSe] = useState(false);
 
 	const updateConsole = useCallback((message) => {
 		const timestamp = new Date().toLocaleTimeString();
@@ -219,8 +237,35 @@ export const useRemixClient = () => {
 			try {
 				const clientInstance = createClient();
 				setClient(clientInstance);
+
 				clientInstance.onload(async () => {
+					async function checkMuSeFolder(clientInstance) {
+						const tryPaths = ["/MuSe/", "MuSe/"];
+						for (const p of tryPaths) {
+							try {
+								await clientInstance.fileManager.readdir(p);
+								setHasMuSe(true);
+								return true;
+							} catch (_) {}
+						}
+						setHasMuSe(false);
+						return false;
+					}
+
 					try {
+						let folderExists = false;
+						try {
+							const folder = await clientInstance.fileManager.getFolder("/MuSe/");
+							if (folder?.["MuSe/results"]?.isDirectory === true) folderExists = true;
+							else folderExists = false;
+						} catch {
+							folderExists = false;
+						}
+
+						if (folderExists) {
+							await clientInstance.fileManager.remove("/MuSe/");
+						}
+
 						// Plugin initialization
 						clearConsole();
 						updateConsole("MuSe Plugin loaded successfully.");
@@ -299,7 +344,7 @@ export const useRemixClient = () => {
 				}
 
 				if (folderExists) {
-					await client.fileManager.remove("/MuSe/"); 
+					await client.fileManager.remove("/MuSe/");
 				}
 
 				importDirectoryToRemix(client);
@@ -336,48 +381,9 @@ export const useRemixClient = () => {
 		}
 	}
 
-	// const executeTesting = useCallback(
-	// 	async (testingConfig, testFiles) => {
-	// 		updateConsole(
-	// 			`Starting testing process with framework ${testingConfig.testingFramework} and timeout ${testingConfig.testingTimeOutInSec} sec...`
-	// 		);
-
-	// 		const contractName = selectedContract.split("/").pop().replace(".sol", "");
-	// 		const formattedTestFiles = testFiles.filter(
-	// 			(file) =>
-	// 				file.name.toLowerCase().includes(contractName.toLowerCase()) &&
-	// 				file.name.toLowerCase().includes(testingConfig.testingFramework.toLowerCase())
-	// 		);
-	// 		console.log(formattedTestFiles);
-	// 		if (formattedTestFiles.length === 0) updateConsole("No test files found for the selected contract and framework");
-
-	// 		try {
-	// 			const response = await fetch(`${API_URL}/api/test`, {
-	// 				method: "POST",
-	// 				headers: { "Content-Type": "application/json" },
-	// 				body: JSON.stringify({ testingConfig, testFiles: formattedTestFiles }),
-	// 			});
-	// 			const result = await response.json();
-	// 			if (response.ok) {
-	// 				updateConsole(`Testing complete: ${result.output}`);
-	// 				if (!client) return;
-	// 				await client.fileManager.writeFile("/MuSe/results/report.html", result.report);
-	// 				updateConsole("Report saved to /MuSe/results/report.html");
-	// 			} else {
-	// 				updateConsole(`Testing error: ${result.error}`);
-	// 			}
-	// 		} catch (err) {
-	// 			updateConsole(`Error during testing: ${err.message}`);
-	// 		}
-	// 	},
-	// 	[client, updateConsole]
-	// );
-
 	const startTesting = useCallback(
 		async (testingConfig) => {
-			// prendi i test da Remix
 			const testFiles = await getTestFiles();
-			// avvia l’esecuzione (stream NDJSON)
 			await executeTesting(testingConfig, testFiles);
 		},
 		[executeTesting, getTestFiles]
@@ -386,8 +392,6 @@ export const useRemixClient = () => {
 	async function importDirectoryToRemix(remixPluginClient) {
 		try {
 			const response = await fetch(`${API_URL}/api/files-to-import`);
-
-			//await remixPluginClient.fileManager.remove("/MuSe/");
 
 			const files = await response.json();
 
@@ -417,7 +421,6 @@ export const useRemixClient = () => {
 		};
 
 		if (client) {
-			// Aggiungi i listener
 			client.on("fileManager", "fileAdded", handleFileAdded);
 			client.on("fileManager", "fileRemoved", handleFileRemoved);
 			client.on("fileManager", "fileRenamed", handleFileRenamed);
