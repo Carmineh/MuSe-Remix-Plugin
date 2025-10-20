@@ -48,8 +48,8 @@ cd MuSe-Remix-Plugin
 # Install dependencies for MuSe
 cd MuSe
 npm install
-# For the Framework installation make sure to check MuSe and SuMo repositories
-# Framework are mandatory to run tests
+# Check the official documentation for framework installation steps.
+# Frameworks are required to run tests.
 
 # Install dependencies for the plugin
 cd ../MuSe-Remix-Plugin
