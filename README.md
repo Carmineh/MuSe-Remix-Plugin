@@ -2,12 +2,18 @@
 <img src="MuSe-Remix-Plugin/public/logo.png" alt="MuSe logo" style="width:25%;"/>
 </p>
 
+<div align="center">
+  
 [![License](https://img.shields.io/github/license/Carmineh/MuSe-Remix-Plugin)](https://github.com/Carmineh/MuSe-Remix-Plugin?tab=GPL-3.0-1-ov-file)
 [![Deploy app to GitHub Pages](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/pages.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/pages.yml)
 [![CI/CD Pipeline](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Carmineh/MuSe-Remix-Plugin/actions/workflows/ci-cd.yml)
 [![Docker Image Version](https://img.shields.io/docker/v/danielecarangelo/muse-remix-plugin)](https://hub.docker.com/r/danielecarangelo/muse-remix-plugin/tags)
 
 # MuSe - MUtation SEeding tool Plugin for Remix IDE
+
+</div>
+
+
 
 **[MuSe](https://github.com/GerardoIuliano/MuSe)** is a mutation testing tool for Solidity Smart Contracts. It was designed to run mutation testing on Solidity projects. It can run test using Hardhat, Brownie, Truffle and Forge, hybrid test suites, and custom test scripts.
 
@@ -19,7 +25,9 @@
   - [Option 2 – Local Setup](#computer-option-2--local-setup)
 - [Connect to Remix IDE](#jigsaw-connect-to-remix-ide)
 - [Usage](#hammer-and-wrench-usage)
+- [Citation](#scroll-citation)
 - [Support](#envelope-support)
+
 
 ## Requirements
 
@@ -165,6 +173,24 @@ This plugin includes the mutation operators defined in <b><a href="https://githu
 
 6. **View the Mutation Report**  
    Once the test run is complete, open the `MuSe/results/report.html` file.
+
+<h2 id="scroll-citation">📜 Citation</h2>
+
+If you use **MuSe** or this plugin in your research, please cite our paper published at **IEEE SANER 2026**:
+
+> G. Iuliano, D. Carangelo, C. Calabrese and D. Di Nucci, **"MuSe: A Mutation Testing Plugin for the Remix IDE,"** *2026 IEEE International Conference on Software Analysis, Evolution and Reengineering (SANER)*, Limassol, Cyprus, 2026, pp. 837-841, doi: [10.1109/SANER67736.2026.00098](https://doi.org/10.1109/SANER67736.2026.00098).
+
+```bibtex
+@inproceedings{iuliano2026muse,
+  author    = {Iuliano, Gerardo and Carangelo, Daniele and Calabrese, Carmine and Di Nucci, Dario},
+  booktitle = {2026 IEEE International Conference on Software Analysis, Evolution and Reengineering (SANER)}, 
+  title     = {MuSe: A Mutation Testing Plugin for the Remix IDE}, 
+  year      = {2026},
+  pages     = {837-841},
+  doi       = {10.1109/SANER67736.2026.00098},
+  keywords  = {Testing;Smart contracts;Tools;Contracts;Security;Codes;Blockchains;Programming;Mutation Testing;Blockchain;Smart Contract;Solidity;Remix-IDE}
+}
+```
 
 <h2 id="envelope-support">📬 Support</h2>
 
